@@ -1,13 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const protect = require("../middleware/authMiddleware");
+const roleCheck = require("../middleware/roleMiddleware");
 
-const authMiddleware = require("../middleware/authMiddleware");
-
-router.get("/dashboard", authMiddleware, (req, res) => {
-  res.json({
-    message: "Welcome to dashboard",
-    user: req.user,
-  });
+router.get("/admin", protect, roleCheck("admin"), (req, res) => {
+  res.json({ message: "Admin dashboard" });
 });
 
 module.exports = router;
