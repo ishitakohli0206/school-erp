@@ -1,11 +1,30 @@
-const app = require("./app");
-const PORT = process.env.PORT || 5000;
-const sequelize = require("./config/db");
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
 
+const db = require("./models");
+const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/user");
-app.use("/api/users", userRoutes);
- 
-sequelize.sync()
+
+dotenv.config();
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
+
+app.get("/", (req, res) => {
+  res.send("Server running successfully");
+});
+
+const PORT = process.env.PORT || 5000;
+
+db.sequelize
+  .sync()
   .then(() => {
     console.log("Database connected & synced");
     app.listen(PORT, () => {
@@ -13,7 +32,6 @@ sequelize.sync()
     });
   })
   .catch((err) => {
-    console.log("DB error:", err);
+    console.error(err);
   });
-
 
