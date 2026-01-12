@@ -9,8 +9,5 @@ router.get("/profile", verifyToken, (req, res) => {
   });
 });
 
-router.get("/test", (req, res) => {
-  res.send("USER ROUTE WORKING");
-});
 module.exports = router;
 
