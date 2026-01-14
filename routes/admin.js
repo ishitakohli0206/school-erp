@@ -1,39 +1,47 @@
 const express = require("express");
 const router = express.Router();
+const db = require("../models");
 
-const verifyToken = require("../middleware/authMiddleware");
-const isAdmin = require("../middleware/adminMiddleware");
-
-const Classes = require("../models/classes")(
-  require("../config/db"),
-  require("sequelize")
-);
-
-// safety check (temporary)
-console.log("Classes model:", Classes);
+const { User, Student, Parent, ParentStudent } = db;
 
 
-// CREATE class
-router.post("/class", verifyToken, isAdmin, async (req, res) => {
+router.post("/student", async (req, res) => {
   try {
-    const { class_name, section } = req.body;
+    const { user_id, class_id } = req.body;
 
-    const newClass = await Classes.create({
-      class_name,
-      section
+    const student = await Student.create({
+      user_id,
+      class_id,
     });
 
-    res.status(201).json(newClass);
+    res.json(student);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET all classes
-router.get("/classes", verifyToken, isAdmin, async (req, res) => {
+router.post("/parent", async (req, res) => {
   try {
-    const classes = await Classes.findAll();
-    res.json(classes);
+    const { user_id } = req.body;
+
+    const parent = await Parent.create({ user_id });
+    res.json(parent);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* LINK PARENT & STUDENT */
+router.post("/parent-student", async (req, res) => {
+  try {
+    const { parent_id, student_id } = req.body;
+
+    const link = await ParentStudent.create({
+      parent_id,
+      student_id,
+    });
+
+    res.json(link);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

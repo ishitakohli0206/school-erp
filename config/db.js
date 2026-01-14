@@ -10,5 +10,6 @@ const sequelize = new Sequelize(
     logging: false
   }
 );
+console.log("DB NAME:", process.env.DB_NAME);
 
 module.exports = sequelize;
