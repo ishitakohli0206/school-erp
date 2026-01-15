@@ -1,47 +1,68 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const db = require("../models");
+const { Student, Parent, Class } = require('../models');
+const verifyToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/adminMiddleware');
 
-const { User, Student, Parent, ParentStudent } = db;
 
-
-router.post("/student", async (req, res) => {
+router.get('/parent/:id/students', verifyToken, isAdmin, async (req, res) => {
   try {
-    const { user_id, class_id } = req.body;
-
-    const student = await Student.create({
-      user_id,
-      class_id,
+    const parent = await Parent.findByPk(req.params.id, {
+      include: Student
     });
 
-    res.json(student);
+    if (!parent) {
+      return res.status(404).json({ error: 'Parent not found' });
+    }
+
+    res.json(parent.Students);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.post("/parent", async (req, res) => {
-  try {
-    const { user_id } = req.body;
 
-    const parent = await Parent.create({ user_id });
-    res.json(parent);
+router.get('/student/:id/parents', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const student = await Student.findByPk(req.params.id, {
+      include: Parent
+    });
+
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    res.json(student.Parents);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-/* LINK PARENT & STUDENT */
-router.post("/parent-student", async (req, res) => {
-  try {
-    const { parent_id, student_id } = req.body;
 
-    const link = await ParentStudent.create({
-      parent_id,
-      student_id,
+router.get('/class/:id/students', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const students = await Student.findAll({
+      where: { class_id: req.params.id }
     });
 
-    res.json(link);
+    res.json(students);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+router.get('/student/:id/class', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const student = await Student.findByPk(req.params.id, {
+      include: Class
+    });
+
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    res.json(student.Class);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

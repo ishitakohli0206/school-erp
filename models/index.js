@@ -1,29 +1,36 @@
-const Sequelize = require("sequelize");
 const sequelize = require("../config/db");
 
-const db = {};
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
-
-db.User = require("./user")(sequelize, Sequelize);
-db.Class = require("./classes")(sequelize, Sequelize);
-db.Student = require("./students")(sequelize, Sequelize);
-db.Parent = require("./parents")(sequelize, Sequelize);
-db.ParentStudent = require("./parent_student")(sequelize, Sequelize);
+const User = require("./user");
+const Student = require("./students");
+const Parent = require("./parents");
+const ParentStudent = require("./parent_student");
+const Class = require("./classes");
+const Attendance = require("./attendance");
 
 
-db.Student.belongsTo(db.User, { foreignKey: "user_id" });
-db.Parent.belongsTo(db.User, { foreignKey: "user_id" });
-
-db.Parent.belongsToMany(db.Student, {
-  through: db.ParentStudent,
+Parent.belongsToMany(Student, {
+  through: ParentStudent,
   foreignKey: "parent_id",
+  otherKey: "student_id"
 });
 
-db.Student.belongsToMany(db.Parent, {
-  through: db.ParentStudent,
+Student.belongsToMany(Parent, {
+  through: ParentStudent,
   foreignKey: "student_id",
+  otherKey: "parent_id"
 });
 
-module.exports = db;
+Class.hasMany(Student, { foreignKey: "class_id" });
+Student.belongsTo(Class, { foreignKey: "class_id" });
+
+
+module.exports = {
+  sequelize,
+  User,
+  Student,
+  Parent,
+  ParentStudent,
+  Class,
+  Attendance
+};
