@@ -1,36 +1,78 @@
+const { Sequelize, DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/db");
 
+const db = {};
 
-const User = require("./user");
-const Student = require("./students");
-const Parent = require("./parents");
-const ParentStudent = require("./parent_student");
-const Class = require("./classes");
-const Attendance = require("./attendance");
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
 
+/* =================================
+   UNIVERSAL MODEL LOADER
+================================= */
+const loadModel = (path) => {
+  const exported = require(path);
 
-Parent.belongsToMany(Student, {
-  through: ParentStudent,
-  foreignKey: "parent_id",
-  otherKey: "student_id"
-});
+  // CASE 1: Factory function (sequelize, DataTypes)
+  if (
+    typeof exported === "function" &&
+    !exported.prototype instanceof Model
+  ) {
+    return exported(sequelize, DataTypes);
+  }
 
-Student.belongsToMany(Parent, {
-  through: ParentStudent,
-  foreignKey: "student_id",
-  otherKey: "parent_id"
-});
+  // CASE 2: ES6 Class extends Model
+  if (
+    typeof exported === "function" &&
+    exported.prototype instanceof Model
+  ) {
+    exported.init(exported.rawAttributes, {
+      sequelize,
+      modelName: exported.name,
+      tableName: exported.tableName,
+      timestamps: false
+    });
+    return exported;
+  }
 
-Class.hasMany(Student, { foreignKey: "class_id" });
-Student.belongsTo(Class, { foreignKey: "class_id" });
-
-
-module.exports = {
-  sequelize,
-  User,
-  Student,
-  Parent,
-  ParentStudent,
-  Class,
-  Attendance
+  // CASE 3: Direct sequelize.define model
+  return exported;
 };
+
+/* ================================
+   MODELS
+================================ */
+db.User = loadModel("./user");
+db.Student = loadModel("./students");
+db.Parent = loadModel("./parents");
+db.ParentStudent = loadModel("./parent_student");
+db.Class = loadModel("./classes");
+db.Attendance = loadModel("./attendance");
+
+/* ================================
+   ASSOCIATIONS
+================================ */
+
+// Parent ↔ Student
+db.Parent.belongsToMany(db.Student, {
+  through: db.ParentStudent,
+  foreignKey: "parent_id",
+  otherKey: "student_id",
+  timestamps: false
+});
+
+db.Student.belongsToMany(db.Parent, {
+  through: db.ParentStudent,
+  foreignKey: "student_id",
+  otherKey: "parent_id",
+  timestamps: false
+});
+
+// Class → Student
+db.Class.hasMany(db.Student, { foreignKey: "class_id" });
+db.Student.belongsTo(db.Class, { foreignKey: "class_id" });
+
+// Student → Attendance
+db.Student.hasMany(db.Attendance, { foreignKey: "student_id" });
+db.Attendance.belongsTo(db.Student, { foreignKey: "student_id" });
+
+module.exports = db;

@@ -11,7 +11,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/user");
 const adminRoutes = require("./routes/admin");
 const classRoutes = require("./routes/classRoutes");
-
+const attendanceRoutes = require("./routes/attendanceRoutes");
 
 
 
@@ -26,6 +26,7 @@ app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/admin", adminRoutes);
 app.use("/classes", classRoutes);
+app.use("/attendance", attendanceRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server running successfully");
