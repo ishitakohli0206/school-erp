@@ -7,12 +7,13 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Route */}
+        {/* Default route */}
+        <Route path="/" element={<Login />} />
+
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Route */}
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
