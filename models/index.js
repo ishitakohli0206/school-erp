@@ -6,9 +6,7 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-/* =================================
-   UNIVERSAL MODEL LOADER
-================================= */
+
 const loadModel = (path) => {
   const exported = require(path);
 

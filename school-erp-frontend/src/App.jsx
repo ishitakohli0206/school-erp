@@ -1,27 +1,40 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import ProtectedRoute from "./routes/ProtectedRoute";
+console.log("APP RENDERED");
+
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import StudentDashboard from "./pages/StudentDashboard.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        {/* Default route */}
-        <Route path="/" element={<Login />} />
+  <Route path="/login" element={<Login />} />
 
-        <Route path="/login" element={<Login />} />
+  <Route
+    path="/admin"
+    element={
+      <ProtectedRoute allowedRoles={["admin"]}>
+        <AdminDashboard />
+      </ProtectedRoute>
+    }
+  />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+  <Route
+    path="/student"
+    element={
+      <ProtectedRoute allowedRoles={["student"]}>
+        <StudentDashboard />
+      </ProtectedRoute>
+    }
+  />
+
+  <Route path="*" element={<Navigate to="/login" replace />} />
+</Routes>
+
+    </BrowserRouter>
   );
 }
 

@@ -59,9 +59,15 @@ const loginUser = async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    const role =
+      user.role_id === 1 ? "admin" :
+      user.role_id === 2 ? "student" :
+      null;
+
     res.status(200).json({
       message: "Login successful",
-      token
+      token,
+      role
     });
 
   } catch (error) {

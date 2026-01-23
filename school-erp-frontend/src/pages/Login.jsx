@@ -14,27 +14,33 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await api.post("/auth/login", {
-        email,
-        password,
-      });
+      const res = await api.post("/auth/login", { email, password });
+
+      console.log("RAW LOGIN RESPONSE:", res.data);
 
       const token = res.data.token;
+      const role = res.data.role;
+
+      if (!token || !role) {
+        throw new Error("Role missing from backend");
+      }
+
       localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
 
-      alert("Login successful");
-      console.log("TOKEN:", token);
+      if (role === "admin") navigate("/admin", { replace: true });
+      else if (role === "student") navigate("/student", { replace: true });
+      else setError("Invalid user role");
 
-      navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      console.error(err);
+      setError(err.message || "Login failed");
     }
   };
 
   return (
     <div style={{ padding: "40px" }}>
       <h2>Login</h2>
-
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <form onSubmit={handleLogin}>
@@ -43,15 +49,17 @@ const Login = () => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
-
+        <br /><br />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
-
+        <br /><br />
         <button type="submit">Login</button>
       </form>
     </div>
