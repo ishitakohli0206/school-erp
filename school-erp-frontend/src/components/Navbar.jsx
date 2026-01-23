@@ -4,18 +4,29 @@ import "./Navbar.css";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const role = localStorage.getItem("role");
 
   const handleLogout = () => {
     logout(navigate);
   };
 
+  const handleLogoClick = () => {
+    if (role === "admin") navigate("/admin");
+    else if (role === "student") navigate("/student");
+    else navigate("/login");
+  };
+
+  const roleLabel =
+    role === "admin" ? "Admin" : role === "student" ? "Student" : "Guest";
+
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="navbar-left">
+        <div className="navbar-left" onClick={handleLogoClick}>
           <h1 className="navbar-logo">School ERP</h1>
         </div>
         <div className="navbar-right">
+          <span className="navbar-role">{roleLabel}</span>
           <button className="btn-logout" onClick={handleLogout}>
             Logout
           </button>

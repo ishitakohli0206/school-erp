@@ -30,6 +30,11 @@
   gap: 1rem;
 }
 
+.navbar-role {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
 .btn-logout {
   background-color: var(--danger-color);
   color: var(--text-white);

@@ -5,9 +5,12 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const role = localStorage.getItem("role");
+  const dashboardPath =
+    role === "admin" ? "/admin" : role === "student" ? "/student" : "/login";
+
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: "📊" },
-    
+    { id: "dashboard", label: "Dashboard", path: dashboardPath, icon: "📊" },
   ];
 
   const handleNavigation = (path) => {

@@ -47,13 +47,11 @@
 }
 
 .login-error {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: var(--danger-color);
-  padding: 0.875rem 1rem;
-  border-radius: var(--border-radius);
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  color: #b91c1c;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: "Montserrat", sans-serif;
+  text-align: center;
 }
 
 .login-form {
