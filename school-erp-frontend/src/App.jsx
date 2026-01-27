@@ -1,41 +1,67 @@
-console.log("APP RENDERED");
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import AdminDashboard from "./pages/AdminDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
+import Students from "./pages/Students";
+import Attendance from "./pages/Attendance";
+import Reports from "./pages/Reports";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import AdminDashboard from "./pages/AdminDashboard.jsx";
-import StudentDashboard from "./pages/StudentDashboard.jsx";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
-
-function App() {
+const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-  <Route path="/login" element={<Login />} />
+    <Routes>
 
-  <Route
-    path="/admin"
-    element={
-      <ProtectedRoute allowedRoles={["admin"]}>
-        <AdminDashboard />
-      </ProtectedRoute>
-    }
-  />
+      <Route path="/login" element={<Login />} />
 
-  <Route
-    path="/student"
-    element={
-      <ProtectedRoute allowedRoles={["student"]}>
-        <StudentDashboard />
-      </ProtectedRoute>
-    }
-  />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
 
-  <Route path="*" element={<Navigate to="/login" replace />} />
-</Routes>
+      <Route
+        path="/students"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Students />
+          </ProtectedRoute>
+        }
+      />
 
-    </BrowserRouter>
+      <Route
+        path="/attendance"
+        element={
+          <ProtectedRoute allowedRoles={["admin","student"]}>
+            <Attendance />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Reports />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/student"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <StudentDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="*" element={<Navigate to="/login" replace />} />
+
+    </Routes>
   );
-}
+};
 
 export default App;

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useAuth } from "../context/authContext";
 import "./Login.css";
 
 const Login = () => {
@@ -10,6 +11,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -17,30 +19,40 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const res = await api.post("/auth/login", { email, password });
+      const res = await api.post("/auth/login", {
+        email,
+        password,
+      });
 
       console.log("RAW LOGIN RESPONSE:", res.data);
 
-      const token = res.data.token;
-      const role = res.data.role;
+      const { token, role } = res.data;
 
       if (!token || !role) {
-        throw new Error("Role missing from backend");
+        throw new Error("Invalid login response from server");
       }
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
 
+      // Update auth context from token so ProtectedRoute sees user immediately
+      await refreshUser();
+
       if (role === "admin") navigate("/admin", { replace: true });
       else if (role === "student") navigate("/student", { replace: true });
       else setError("Invalid user role");
     } catch (err) {
-      console.error(err);
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Login failed. Please try again.";
-      setError(message);
+      console.error("LOGIN ERROR:", err);
+
+      if (err.response?.status === 404) {
+        setError("Login API not found (404)");
+      } else {
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Login failed. Please try again."
+        );
+      }
     } finally {
       setIsLoading(false);
     }

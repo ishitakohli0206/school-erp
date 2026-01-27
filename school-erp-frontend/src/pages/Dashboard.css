@@ -6,6 +6,7 @@
 
 .dashboard-header {
   margin-bottom: 2rem;
+  padding-top: 0.5rem; /* extra top spacing so header clears any visuals */
 }
 
 .dashboard-title {

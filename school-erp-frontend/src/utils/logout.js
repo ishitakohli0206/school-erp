@@ -1,7 +1,5 @@
-const logout = (navigate) => {
+export const logout = (navigate) => {
   localStorage.removeItem("token");
   localStorage.removeItem("role");
-  navigate("/login");
+  navigate("/login", { replace: true });
 };
-
-export { logout };

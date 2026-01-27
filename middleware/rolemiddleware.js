@@ -1,4 +1,4 @@
-// roleCheck(roleName) -> returns middleware that verifies numeric role_id
+
 module.exports = (roleName) => {
   return (req, res, next) => {
     if (!req.user || typeof req.user.role_id === "undefined") {

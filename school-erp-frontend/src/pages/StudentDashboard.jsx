@@ -1,7 +1,10 @@
 import MainLayout from "../components/MainLayout";
 import "./Dashboard.css";
+import { useNavigate } from "react-router-dom";
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
+  
   const stats = [
     { title: "Enrolled Classes", value: "0", icon: "📚", color: "#3b82f6" },
     { title: "Attendance This Month", value: "0%", icon: "✓", color: "#10b981" },
@@ -56,7 +59,7 @@ const StudentDashboard = () => {
                 </button>
                 <button className="action-btn">
                   <span className="action-icon">📝</span>
-                  <span>Check Attendance</span>
+                  <span onClick={() => navigate('/attendance')}>Check Attendance</span>
                 </button>
                 <button className="action-btn">
                   <span className="action-icon">📄</span>

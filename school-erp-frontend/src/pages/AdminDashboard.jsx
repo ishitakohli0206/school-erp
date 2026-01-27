@@ -1,8 +1,23 @@
 import React from "react";
 import MainLayout from "../components/MainLayout";
 import "./Dashboard.css";
+import { useAuth } from "../context/authContext";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // ⛔ jab tak auth load ho raha hai
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // ⛔ safety check
+  if (!user) {
+    return <div>User not found</div>;
+  }
+
   const stats = [
     { title: "Total Students", value: "0", icon: "👥", color: "#3b82f6" },
     { title: "Total Classes", value: "0", icon: "📚", color: "#10b981" },
@@ -20,6 +35,10 @@ const AdminDashboard = () => {
       <div className="dashboard">
         <div className="dashboard-header">
           <h1 className="dashboard-title">Admin Dashboard</h1>
+
+          <p>Welcome, {user.name}</p>
+          
+
           <p className="dashboard-subtitle">
             Overview of school operations and key metrics
           </p>
@@ -54,19 +73,19 @@ const AdminDashboard = () => {
               <div className="quick-actions">
                 <button className="action-btn">
                   <span className="action-icon">➕</span>
-                  <span>Add Student</span>
+                    <span onClick={() => navigate('/students')}>Add Student</span>
                 </button>
                 <button className="action-btn">
                   <span className="action-icon">📝</span>
-                  <span>Take Attendance</span>
+                    <span onClick={() => navigate('/attendance')}>Take Attendance</span>
                 </button>
                 <button className="action-btn">
                   <span className="action-icon">📊</span>
-                  <span>View Reports</span>
+                    <span onClick={() => navigate('/reports')}>View Reports</span>
                 </button>
                 <button className="action-btn">
                   <span className="action-icon">⚙️</span>
-                  <span>Settings</span>
+                    <span>Settings</span>
                 </button>
               </div>
             </div>
@@ -77,20 +96,16 @@ const AdminDashboard = () => {
               <h2 className="card-title">Recent Activity</h2>
             </div>
             <div className="card-body">
-              {recentActivities.length > 0 ? (
-                <ul className="activity-list">
-                  {recentActivities.map((activity) => (
-                    <li key={activity.id} className="activity-item">
-                      <div className="activity-content">
-                        <p className="activity-text">{activity.activity}</p>
-                        <span className="activity-time">{activity.time}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="empty-state">No recent activities</p>
-              )}
+              <ul className="activity-list">
+                {recentActivities.map((activity) => (
+                  <li key={activity.id} className="activity-item">
+                    <div className="activity-content">
+                      <p className="activity-text">{activity.activity}</p>
+                      <span className="activity-time">{activity.time}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
