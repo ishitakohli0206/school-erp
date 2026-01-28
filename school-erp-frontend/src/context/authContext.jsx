@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import api from "../services/api";
 
 const AuthContext = createContext();
 
@@ -8,30 +7,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  console.log("AuthContext mounted");
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
 
-  const token = localStorage.getItem("token");
-  console.log("Token:", token);
-
-  if (!token) {
-    setUser(null);
-    setLoading(false);
-    return;
-  }
-
-  api.get("/auth/me")
-    .then(res => {
-      console.log("ME API RESPONSE:", res.data); 
-      setUser(res.data);
-    })
-    .catch(err => {
-      console.log("ME API ERROR:", err);
-      localStorage.clear();
+    if (!token || !role) {
       setUser(null);
-    })
-    .finally(() => setLoading(false));
-}, []);
+      setLoading(false);
+      return;
+    }
 
+    setUser({ role });
+    setLoading(false);
+  }, []);
 
   const logout = (navigate) => {
     localStorage.clear();
@@ -40,16 +27,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshUser = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/auth/me");
-      setUser(res.data);
-    } catch (err) {
-      localStorage.clear();
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || !role) {
       setUser(null);
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    setUser({ role });
   };
 
   return (

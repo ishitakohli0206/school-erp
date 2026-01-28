@@ -1,17 +1,14 @@
 .sidebar {
-  width: 260px;
-  background-color: var(--bg-sidebar);
-  color: var(--text-white);
-  height: calc(100vh - 64px);
   position: fixed;
-  left: 0;
   top: 64px;
-  overflow-y: auto;
+  left: 0;
+  width: 280px;
+  height: calc(100vh - 64px);
+  background-color: #1f2937;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
-  z-index: 150;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.04);
+  z-index: 999;
+  overflow-y: auto;
 }
-
 .sidebar-nav {
   padding: 1rem 0;
 }

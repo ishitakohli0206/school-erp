@@ -1,54 +1,28 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const verifyToken = require("../middleware/authMiddleware");
-const User = require("../models").User;
+const { login } = require("../controllers/authController");
+const { register } = require("../controllers/authController");
 
 /**
  * POST /auth/login
- * Frontend yahi hit kar raha hai
+ * Uses authController.login
  */
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+router.post("/login", login);
 
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+/**
+ * POST /auth/register
+ * Uses authController.register
+ */
+router.post("/register", register);
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    const role =
-      user.role_id === 1 ? "admin" :
-      user.role_id === 2 ? "student" :
-      null;
-
-    return res.json({
-      message: "Login successful",
-      token,
-      role
-    });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-
+/**
+ * GET /auth/me
+ * Get current user info
+ */
 router.get("/me", verifyToken, async (req, res) => {
   try {
+    const User = require("../models").User;
     const user = await User.findByPk(req.user.id, {
       attributes: ["id", "name", "email", "role_id"]
     });
@@ -62,14 +36,26 @@ router.get("/me", verifyToken, async (req, res) => {
       user.role_id === 2 ? "student" :
       null;
 
-    res.json({
+    // If student, also return student_id
+    let response = {
       id: user.id,
       name: user.name,
       email: user.email,
       role
-    });
+    };
+
+    if (role === "student") {
+      const Student = require("../models").Student;
+      const student = await Student.findOne({ where: { user_id: user.id } });
+      if (student) {
+        response.student_id = student.id;
+      }
+    }
+
+    res.json(response);
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });

@@ -1,92 +1,66 @@
+:root {
+  --navbar-height: 64px;
+  --sidebar-width: 260px;
+}
+
+/* RESET */
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
-/* ROOT LAYOUT */
-.main-layout {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  grid-template-rows: 64px 1fr;
-  background-color: var(--bg-secondary);
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* LAYOUT ROOT */
+.app-shell {
+  width: 100vw;
+  height: 100vh;
 }
 
 /* NAVBAR */
 .navbar {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--navbar-height);
+  z-index: 1000;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 /* SIDEBAR */
 .sidebar {
-  grid-column: 1;
-  grid-row: 2;
-  width: 280px;
+  position: fixed;
+  top: var(--navbar-height);
+  left: 0;
+  width: var(--sidebar-width);
+  height: calc(100vh - var(--navbar-height));
+  background: #1e293b;
+  z-index: 900;
+  overflow-y: auto;
 }
 
 /* MAIN CONTENT */
-.main-content {
-  grid-column: 2;
-  grid-row: 2;
-
-  padding: 2rem;
-  display: flex;
-  justify-content: center;
-
-  min-height: calc(100vh - 64px);
-}
-
-/* CONTENT WRAPPER INSIDE PAGES */
-.page-container {
-  width: 100%;
-  max-width: 1200px;
-}
-
-/* LARGE SCREENS */
-@media (min-width: 1200px) {
-  .main-layout {
-    grid-template-columns: 340px 1fr;
-  }
-
-  .sidebar {
-    width: 340px;
-  }
-}
-
-/* TABLET */
-@media (max-width: 768px) {
-  .main-layout {
-    grid-template-columns: 200px 1fr;
-  }
-
-  .sidebar {
-    width: 200px;
-  }
-
-  .main-content {
-    padding: 1.5rem;
-  }
+.app-content {
+  margin-top: var(--navbar-height);
+  margin-left: var(--sidebar-width);
+  padding: 24px;
+  min-height: calc(100vh - var(--navbar-height));
+  background: #f8fafc;
 }
 
 /* MOBILE */
-@media (max-width: 640px) {
-  .main-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: 64px 1fr;
-  }
-
+@media (max-width: 768px) {
   .sidebar {
-    display: none;
+    width: 220px;
   }
 
-  .main-content {
-    grid-column: 1;
-    padding: 1rem;
+  .app-content {
+    margin-left: 220px;
   }
 }

@@ -52,14 +52,25 @@ exports.getStudentAttendance = async (req, res) => {
   try {
     const { student_id } = req.params;
 
+    console.log("getStudentAttendance called with student_id:", student_id);
+
+    if (!student_id) {
+      return res.status(400).json({
+        message: "student_id is required"
+      });
+    }
+
     const attendance = await Attendance.findAll({
       where: { student_id },
       order: [["date", "DESC"]]
     });
 
+    console.log("Attendance records found:", attendance.length);
+
     res.json(attendance);
 
   } catch (error) {
+    console.error("Error fetching student attendance:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

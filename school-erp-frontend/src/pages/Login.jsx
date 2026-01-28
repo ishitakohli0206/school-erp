@@ -26,7 +26,7 @@ const Login = () => {
 
       console.log("RAW LOGIN RESPONSE:", res.data);
 
-      const { token, role } = res.data;
+      const { token, role, student_id, user_id } = res.data;
 
       if (!token || !role) {
         throw new Error("Invalid login response from server");
@@ -34,6 +34,8 @@ const Login = () => {
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
+      if (user_id) localStorage.setItem("user_id", user_id);
+      if (student_id) localStorage.setItem("student_id", student_id);
 
       // Update auth context from token so ProtectedRoute sees user immediately
       await refreshUser();

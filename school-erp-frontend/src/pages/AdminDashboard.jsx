@@ -71,21 +71,21 @@ const AdminDashboard = () => {
             </div>
             <div className="card-body">
               <div className="quick-actions">
-                <button className="action-btn">
+                <button className="action-btn" onClick={() => navigate('/students')}>
                   <span className="action-icon">➕</span>
-                    <span onClick={() => navigate('/students')}>Add Student</span>
+                  <span>Add Student</span>
                 </button>
-                <button className="action-btn">
+                <button className="action-btn" onClick={() => navigate('/attendance')}>
                   <span className="action-icon">📝</span>
-                    <span onClick={() => navigate('/attendance')}>Take Attendance</span>
+                  <span>Take Attendance</span>
                 </button>
-                <button className="action-btn">
+                <button className="action-btn" onClick={() => navigate('/reports')}>
                   <span className="action-icon">📊</span>
-                    <span onClick={() => navigate('/reports')}>View Reports</span>
+                  <span>View Reports</span>
                 </button>
                 <button className="action-btn">
                   <span className="action-icon">⚙️</span>
-                    <span>Settings</span>
+                  <span>Settings</span>
                 </button>
               </div>
             </div>
