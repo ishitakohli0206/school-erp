@@ -7,7 +7,10 @@ const {
 const { getClassAttendance } = require("../controllers/attendanceController");
 
 // admin or teacher
-router.post("/mark", markAttendance);
+router.post("/mark", (req, res, next) => {
+  console.log("MARK ATTENDANCE API HIT");
+  next();
+}, markAttendance);
 
 // Student-wise view
 router.get("/student/:student_id", getStudentAttendance);

@@ -13,11 +13,15 @@ exports.markAttendance = async (req, res) => {
       });
     }
 
+
    
     const existing = await Attendance.findOne({
       where: { student_id, date }
     });
-
+    const studentExists = await Student.findByPk(student_id);
+     if (!studentExists) {
+     return res.status(404).json({ message: "Student not found" });
+}
     if (existing) {
       existing.status = status;
       await existing.save();

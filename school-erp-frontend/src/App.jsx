@@ -7,6 +7,7 @@ import Attendance from "./pages/Attendance";
 import Reports from "./pages/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+
 const App = () => {
   return (
     <Routes>
