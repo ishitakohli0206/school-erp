@@ -60,8 +60,17 @@ exports.getStudentAttendance = async (req, res) => {
       });
     }
 
+    // Convert student_id to integer if needed
+    const parsedStudentId = parseInt(student_id, 10);
+    
+    if (isNaN(parsedStudentId)) {
+      return res.status(400).json({
+        message: "Invalid student_id format"
+      });
+    }
+
     const attendance = await Attendance.findAll({
-      where: { student_id },
+      where: { student_id: parsedStudentId },
       order: [["date", "DESC"]]
     });
 

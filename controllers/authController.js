@@ -60,6 +60,7 @@ exports.login = async (req, res) => {
       message: "Login successful",
       token,
       role,
+      name: user.name,
       user_id: user.id
     };
 

@@ -8,26 +8,28 @@ const AdminDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  // ⛔ jab tak auth load ho raha hai
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  // ⛔ safety check
-  if (!user) {
-    return <div>User not found</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (!user) return <div>User not found</div>;
 
   const stats = [
-    { title: "Total Students", value: "0", icon: "👥", color: "#3b82f6" },
-    { title: "Total Classes", value: "0", icon: "📚", color: "#10b981" },
-    { title: "Today's Attendance", value: "0", icon: "✓", color: "#f59e0b" },
-    { title: "Pending Tasks", value: "0", icon: "📋", color: "#ef4444" }
+    { title: "Total Students", value: "—", icon: "👥", color: "#3b82f6" },
+    { title: "Total Classes", value: "—", icon: "📚", color: "#10b981" },
+
+    // 👉 POINT 3 LINK
+    {
+      title: "Today's Attendance",
+      value: "View",
+      icon: "✓",
+      color: "#f59e0b",
+      action: () => navigate("/reports")
+    },
+
+    { title: "Pending Tasks", value: "—", icon: "📋", color: "#ef4444" }
   ];
 
   const recentActivities = [
-    { id: 1, activity: "System initialized", time: "Just now" },
-    { id: 2, activity: "Welcome to School ERP (Admin)", time: "Today" }
+    { id: 1, activity: "Attendance module active", time: "Today" },
+    { id: 2, activity: "Admin logged in", time: "Just now" }
   ];
 
   return (
@@ -35,18 +37,20 @@ const AdminDashboard = () => {
       <div className="dashboard">
         <div className="dashboard-header">
           <h1 className="dashboard-title">Admin Dashboard</h1>
-
           <p>Welcome, {user.name}</p>
-          
-
           <p className="dashboard-subtitle">
-            Overview of school operations and key metrics
+            Overview of school operations and attendance insights
           </p>
         </div>
 
         <div className="dashboard-stats">
           {stats.map((stat) => (
-            <div key={stat.title} className="stat-card">
+            <div
+              key={stat.title}
+              className="stat-card"
+              style={{ cursor: stat.action ? "pointer" : "default" }}
+              onClick={stat.action}
+            >
               <div
                 className="stat-icon"
                 style={{
@@ -71,21 +75,19 @@ const AdminDashboard = () => {
             </div>
             <div className="card-body">
               <div className="quick-actions">
-                <button className="action-btn" onClick={() => navigate('/students')}>
+                <button className="action-btn" onClick={() => navigate("/students")}>
                   <span className="action-icon">➕</span>
                   <span>Add Student</span>
                 </button>
-                <button className="action-btn" onClick={() => navigate('/attendance')}>
+
+                <button className="action-btn" onClick={() => navigate("/attendance")}>
                   <span className="action-icon">📝</span>
                   <span>Take Attendance</span>
                 </button>
-                <button className="action-btn" onClick={() => navigate('/reports')}>
+
+                <button className="action-btn" onClick={() => navigate("/reports")}>
                   <span className="action-icon">📊</span>
-                  <span>View Reports</span>
-                </button>
-                <button className="action-btn">
-                  <span className="action-icon">⚙️</span>
-                  <span>Settings</span>
+                  <span>Reports</span>
                 </button>
               </div>
             </div>
@@ -99,10 +101,8 @@ const AdminDashboard = () => {
               <ul className="activity-list">
                 {recentActivities.map((activity) => (
                   <li key={activity.id} className="activity-item">
-                    <div className="activity-content">
-                      <p className="activity-text">{activity.activity}</p>
-                      <span className="activity-time">{activity.time}</span>
-                    </div>
+                    <p className="activity-text">{activity.activity}</p>
+                    <span className="activity-time">{activity.time}</span>
                   </li>
                 ))}
               </ul>

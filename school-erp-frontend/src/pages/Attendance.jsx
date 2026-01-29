@@ -10,7 +10,7 @@ const Attendance = () => {
   const [students, setStudents] = useState([]);
   const [studentId, setStudentId] = useState("");
   const [date, setDate] = useState("");
-  const [status, setStatus] = useState("Present");
+  const [status, setStatus] = useState("present");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,6 +18,11 @@ const Attendance = () => {
   const [records, setRecords] = useState([]);
   const [recordsLoading, setRecordsLoading] = useState(false);
   const [recordsError, setRecordsError] = useState("");
+  
+  // Add debug logging
+  useEffect(() => {
+    console.log("Attendance component mounted. Role:", role);
+  }, []);
 
   // FETCH STUDENTS (ADMIN)
   useEffect(() => {
@@ -25,16 +30,18 @@ const Attendance = () => {
 
     let isMounted = true;
     setLoading(true);
+    setError("");
 
     getStudents()
       .then((res) => {
         if (isMounted) {
+          console.log("Students fetched successfully:", res.data);
           setStudents(res.data || []);
         }
       })
       .catch((err) => {
-        console.error("Error fetching students", err);
-        if (isMounted) setError("Failed to load students.");
+        console.error("Error fetching students", err.response || err.message);
+        if (isMounted) setError(`Failed to load students: ${err.response?.data?.message || err.message}`);
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -59,16 +66,24 @@ const Attendance = () => {
 
     console.log("Fetching attendance for student_id:", storedStudentId);
     setRecordsLoading(true);
+    setRecordsError("");
     
     getStudentAttendance(storedStudentId)
       .then((res) => {
         console.log("Attendance records fetched:", res.data);
-        setRecords(res.data || []);
+        if (Array.isArray(res.data)) {
+          setRecords(res.data);
+        } else {
+          console.warn("Unexpected response format:", res.data);
+          setRecords([]);
+        }
         setRecordsError("");
       })
       .catch((err) => {
-        console.error("Error fetching attendance:", err);
-        setRecordsError(err.response?.data?.message || "Failed to load attendance records.");
+        console.error("Error fetching attendance:", err.response || err.message);
+        const errorMsg = err.response?.data?.message || err.message || "Failed to load attendance records.";
+        console.error("Full error details:", { status: err.response?.status, data: err.response?.data });
+        setRecordsError(errorMsg);
       })
       .finally(() => setRecordsLoading(false));
   }, [role]);
@@ -95,7 +110,7 @@ const Attendance = () => {
       // Reset form
       setStudentId("");
       setDate("");
-      setStatus("Present");
+      setStatus("present");
       
       // Clear message after 3 seconds
       setTimeout(() => setMessage(""), 3000);
@@ -165,8 +180,8 @@ const Attendance = () => {
                     onChange={(e) => setStatus(e.target.value)}
                     className="form-input"
                   >
-                    <option value="Present">Present</option>
-                    <option value="Absent">Absent</option>
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
                   </select>
                 </div>
 

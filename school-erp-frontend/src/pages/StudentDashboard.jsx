@@ -1,13 +1,56 @@
+import { useEffect, useState } from "react";
 import MainLayout from "../components/MainLayout";
 import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
+import axios from "../services/api"; // same axios instance
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-  
+
+  const [attendancePercent, setAttendancePercent] = useState("0%");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const studentId = localStorage.getItem("student_id");
+
+    if (!studentId) {
+      console.error("student_id missing in localStorage");
+      return;
+    }
+
+    setLoading(true);
+
+    axios
+      .get(`/attendance/student/${studentId}`)
+      .then((res) => {
+        const records = res.data || [];
+
+        if (records.length === 0) {
+          setAttendancePercent("0%");
+          return;
+        }
+
+        const total = records.length;
+        const present = records.filter(r => r.status === "present").length;
+
+        const percent = Math.round((present / total) * 100);
+        setAttendancePercent(`${percent}%`);
+      })
+      .catch((err) => {
+        console.error("Attendance fetch error", err);
+        setAttendancePercent("0%");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   const stats = [
-    { title: "Enrolled Classes", value: "0", icon: "📚", color: "#3b82f6" },
-    { title: "Attendance This Month", value: "0%", icon: "✓", color: "#10b981" },
+    { title: "Enrolled Classes", value: "1", icon: "📚", color: "#3b82f6" },
+    {
+      title: "Attendance This Month",
+      value: loading ? "..." : attendancePercent,
+      icon: "✓",
+      color: "#10b981",
+    },
     { title: "Pending Assignments", value: "0", icon: "📋", color: "#f59e0b" },
     { title: "Notifications", value: "0", icon: "🔔", color: "#6366f1" },
   ];
@@ -57,14 +100,20 @@ const StudentDashboard = () => {
                   <span className="action-icon">📅</span>
                   <span>View Timetable</span>
                 </button>
-                <button className="action-btn">
+
+                <button
+                  className="action-btn"
+                  onClick={() => navigate("/attendance")}
+                >
                   <span className="action-icon">📝</span>
-                  <span onClick={() => navigate('/attendance')}>Check Attendance</span>
+                  <span>Check Attendance</span>
                 </button>
+
                 <button className="action-btn">
                   <span className="action-icon">📄</span>
                   <span>Assignments</span>
                 </button>
+
                 <button className="action-btn">
                   <span className="action-icon">💬</span>
                   <span>Messages</span>
@@ -78,20 +127,16 @@ const StudentDashboard = () => {
               <h2 className="card-title">Recent Activity</h2>
             </div>
             <div className="card-body">
-              {recentActivities.length > 0 ? (
-                <ul className="activity-list">
-                  {recentActivities.map((activity) => (
-                    <li key={activity.id} className="activity-item">
-                      <div className="activity-content">
-                        <p className="activity-text">{activity.activity}</p>
-                        <span className="activity-time">{activity.time}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="empty-state">No recent activities</p>
-              )}
+              <ul className="activity-list">
+                {recentActivities.map((activity) => (
+                  <li key={activity.id} className="activity-item">
+                    <div className="activity-content">
+                      <p className="activity-text">{activity.activity}</p>
+                      <span className="activity-time">{activity.time}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

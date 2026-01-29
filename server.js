@@ -16,6 +16,7 @@ const studentRoutes = require("./routes/studentRoutes");
 
 
 
+
 dotenv.config();
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/admin", adminRoutes);
 app.use("/classes", classRoutes);
 app.use("/attendance", attendanceRoutes);
 app.use("/api/students", studentRoutes);
+
 
 app.get("/", (req, res) => {
   res.send("Server running successfully");

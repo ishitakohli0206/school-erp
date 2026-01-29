@@ -26,7 +26,7 @@ const Login = () => {
 
       console.log("RAW LOGIN RESPONSE:", res.data);
 
-      const { token, role, student_id, user_id } = res.data;
+      const { token, role, student_id, user_id, name } = res.data;
 
       if (!token || !role) {
         throw new Error("Invalid login response from server");
@@ -34,6 +34,7 @@ const Login = () => {
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
+      if (name) localStorage.setItem("name", name);
       if (user_id) localStorage.setItem("user_id", user_id);
       if (student_id) localStorage.setItem("student_id", student_id);
 

@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
+    const name = localStorage.getItem("name");
 
     if (!token || !role) {
       setUser(null);
@@ -16,7 +17,7 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    setUser({ role });
+    setUser({ role, name: name || "User" });
     setLoading(false);
   }, []);
 
@@ -29,13 +30,14 @@ export const AuthProvider = ({ children }) => {
   const refreshUser = async () => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
+    const name = localStorage.getItem("name");
 
     if (!token || !role) {
       setUser(null);
       return;
     }
 
-    setUser({ role });
+    setUser({ role, name: name || "User" });
   };
 
   return (
