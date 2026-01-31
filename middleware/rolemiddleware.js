@@ -9,6 +9,7 @@ module.exports = (roleName) => {
     const requiredId =
       roleName === "admin" ? 1 :
       roleName === "student" ? 2 :
+      roleName === "parent" ? 3 :
       null;
 
     if (requiredId === null) {

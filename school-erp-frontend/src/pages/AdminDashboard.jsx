@@ -87,7 +87,7 @@ const AdminDashboard = () => {
 
                 <button className="action-btn" onClick={() => navigate("/reports")}>
                   <span className="action-icon">📊</span>
-                  <span>Reports</span>
+                  <span>Class attendance</span>
                 </button>
               </div>
             </div>

@@ -13,6 +13,7 @@ const adminRoutes = require("./routes/admin");
 const classRoutes = require("./routes/classRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const studentRoutes = require("./routes/studentRoutes");
+const parentRoutes = require("./routes/parentRoutes");
 
 
 
@@ -30,6 +31,8 @@ app.use("/admin", adminRoutes);
 app.use("/classes", classRoutes);
 app.use("/attendance", attendanceRoutes);
 app.use("/api/students", studentRoutes);
+app.use("/parent", parentRoutes);
+
 
 
 app.get("/", (req, res) => {

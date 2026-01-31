@@ -43,6 +43,8 @@ db.Parent = loadModel("./parents");
 db.ParentStudent = loadModel("./parent_student");
 db.Class = loadModel("./classes");
 db.Attendance = loadModel("./attendance");
+db.Parent = require("./parents")(sequelize, Sequelize);
+
 
 
 
@@ -60,6 +62,10 @@ db.Student.belongsToMany(db.Parent, {
   otherKey: "parent_id",
   timestamps: false
 });
+
+// User - Parent
+db.User.hasOne(db.Parent, { foreignKey: "user_id" });
+db.Parent.belongsTo(db.User, { foreignKey: "user_id" });
 
 // Class - Student
 db.Class.hasMany(db.Student, { foreignKey: "class_id" });

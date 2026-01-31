@@ -6,6 +6,9 @@ import Students from "./pages/Students";
 import Attendance from "./pages/Attendance";
 import Reports from "./pages/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ParentDashboard from "./pages/parent/ParentDashboard";
+import ParentAttendance from "./pages/parent/ParentAttendance";
+
 
 
 const App = () => {
@@ -60,8 +63,11 @@ const App = () => {
       />
 
       <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/parent/dashboard" element={<ParentDashboard />} />
+      <Route path="/parent/attendance" element={<ParentAttendance />} />
 
     </Routes>
+    
   );
 };
 

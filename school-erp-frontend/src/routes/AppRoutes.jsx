@@ -4,6 +4,8 @@ import AdminDashboard from "../pages/AdminDashboard";
 import Students from "../pages/Students";
 import Attendance from "../pages/Attendance";
 import StudentDashboard from "../pages/StudentDashboard";
+import ParentDashboard from "../pages/parent/ParentDashboard";
+import ParentAttendance from "../pages/parent/ParentAttendance";
 
 const AppRoutes = () => {
   return (
@@ -15,6 +17,9 @@ const AppRoutes = () => {
       <Route path="/attendance" element={<Attendance />} />
 
       <Route path="/student" element={<StudentDashboard />} />
+
+      <Route path="/parent/dashboard" element={<ParentDashboard />} />
+      <Route path="/parent/attendance" element={<ParentAttendance />} />
     </Routes>
   );
 };

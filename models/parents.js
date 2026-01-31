@@ -1,23 +1,28 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const { DataTypes } = require("sequelize");
 
-const Parent = sequelize.define(
-  'Parent',
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
+module.exports = (sequelize) => {
+  const Parent = sequelize.define(
+    "Parent",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      student_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+    {
+      tableName: "parents",
+      timestamps: false,
     }
-  },
-  {
-    tableName: 'parents',
-    timestamps: false
-  }
-);
+  );
 
-module.exports = Parent;
+  return Parent;
+};

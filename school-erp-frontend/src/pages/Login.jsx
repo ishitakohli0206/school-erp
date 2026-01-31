@@ -32,30 +32,38 @@ const Login = () => {
         throw new Error("Invalid login response from server");
       }
 
+      // 🔐 Store common data
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
-      if (name) localStorage.setItem("name", name);
-      if (user_id) localStorage.setItem("user_id", user_id);
-      if (student_id) localStorage.setItem("student_id", student_id);
+      localStorage.setItem("user_id", user_id);
+      localStorage.setItem("name", name);
 
-      // Update auth context from token so ProtectedRoute sees user immediately
+      // Only student gets student_id at login
+      if (student_id) {
+        localStorage.setItem("student_id", student_id);
+      }
+
       await refreshUser();
 
-      if (role === "admin") navigate("/admin", { replace: true });
-      else if (role === "student") navigate("/student", { replace: true });
-      else setError("Invalid user role");
+      // 🚦 Role based navigation
+      if (role === "admin") {
+        navigate("/admin", { replace: true });
+      } else if (role === "student") {
+        navigate("/student", { replace: true });
+      } else if (role === "parent") {
+        navigate("/parent/dashboard", { replace: true });
+      } else {
+        setError("Invalid user role");
+      }
+
     } catch (err) {
       console.error("LOGIN ERROR:", err);
 
-      if (err.response?.status === 404) {
-        setError("Login API not found (404)");
-      } else {
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Login failed. Please try again."
-        );
-      }
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Login failed. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -71,38 +79,34 @@ const Login = () => {
 
         {error && <div className="login-error">{error}</div>}
 
-        <form onSubmit={handleLogin} className="login-form">
+        <form onSubmit={handleLogin} className="login-form" autoComplete="on">
           <div className="form-group">
-            <label htmlFor="email">Email Address</label>
+            <label>Email Address</label>
             <input
-              id="email"
               type="email"
-              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               className="form-input"
+              autoComplete="email"
+              name="email"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label>Password</label>
             <input
-              id="password"
               type="password"
-              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               className="form-input"
+              autoComplete="current-password"
+              name="password"
             />
           </div>
 
-          <button
-            type="submit"
-            className="btn-login"
-            disabled={isLoading}
-          >
+          <button type="submit" className="btn-login" disabled={isLoading}>
             {isLoading ? "Signing in..." : "Sign In"}
           </button>
         </form>

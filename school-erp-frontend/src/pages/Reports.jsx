@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import MainLayout from "../components/MainLayout";
-import axios from "../services/api"; // same axios instance
+import axios from "../services/api"; 
 
 const Reports = () => {
   const [summary, setSummary] = useState(null);
@@ -10,10 +10,13 @@ const Reports = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
+        setLoading(true);
+        setError("");
+
         const res = await axios.get("/attendance/summary");
         setSummary(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Reports fetch error:", err);
         setError("Failed to load reports");
       } finally {
         setLoading(false);
@@ -23,8 +26,29 @@ const Reports = () => {
     fetchSummary();
   }, []);
 
-  if (loading) return <MainLayout><p>Loading reports...</p></MainLayout>;
-  if (error) return <MainLayout><p className="error-text">{error}</p></MainLayout>;
+  if (loading) {
+    return (
+      <MainLayout>
+        <p>Loading reports...</p>
+      </MainLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainLayout>
+        <p className="error-text">{error}</p>
+      </MainLayout>
+    );
+  }
+
+  if (!summary) {
+    return (
+      <MainLayout>
+        <p>No report data available</p>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -34,17 +58,17 @@ const Reports = () => {
 
         <div className="stats-grid">
           <div className="stat-card">
-            <h2>{summary.totalStudents}</h2>
+            <h2>{summary.totalStudents ?? 0}</h2>
             <p>Total Students</p>
           </div>
 
           <div className="stat-card">
-            <h2>{summary.presentToday}</h2>
+            <h2>{summary.presentToday ?? 0}</h2>
             <p>Present Today</p>
           </div>
 
           <div className="stat-card">
-            <h2>{summary.absentToday}</h2>
+            <h2>{summary.absentToday ?? 0}</h2>
             <p>Absent Today</p>
           </div>
         </div>
@@ -61,12 +85,12 @@ const Reports = () => {
               </tr>
             </thead>
             <tbody>
-              {summary.recentAttendance.length === 0 ? (
+              {summary.recentAttendance?.length === 0 ? (
                 <tr>
                   <td colSpan="3">No records</td>
                 </tr>
               ) : (
-                summary.recentAttendance.map((r) => (
+                summary.recentAttendance?.map((r) => (
                   <tr key={r.id}>
                     <td>{r.Student?.User?.name || "N/A"}</td>
                     <td>{r.date}</td>
