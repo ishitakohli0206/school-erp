@@ -1,85 +1,97 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import MainLayout from "../../components/MainLayout";
+import "../Dashboard.css";
+import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 const ParentAttendance = () => {
-  const navigate = useNavigate();
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    console.log("Fetching parent attendance with token:", token.substring(0, 20) + "...");
-
-    axios
-      .get("http://localhost:5000/parent/attendance", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        console.log("Attendance data received:", res.data);
-        setAttendance(Array.isArray(res.data) ? res.data : []);
+    const fetchAttendance = async () => {
+      try {
+        const res = await api.get("/parent/attendance");
+        setAttendance(res.data || []);
+      } catch (err) {
+        console.error("Attendance fetch error:", err);
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Attendance fetch error:");
-        console.error("Status:", err.response?.status);
-        console.error("Data:", err.response?.data);
-        console.error("Message:", err.message);
-        
-        const errorMsg = err.response?.data?.message || 
-                        err.response?.data?.detail ||
-                        err.message || 
-                        "Unable to fetch attendance";
-        
-        setError(errorMsg);
-        setLoading(false);
-      });
-  }, [navigate]);
+      }
+    };
+
+    fetchAttendance();
+  }, []);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Child Attendance</h2>
+    <MainLayout>
+      <div className="dashboard">
+        {/* HEADER */}
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">Child Attendance</h1>
+          <p className="dashboard-subtitle">
+            Overview of your child’s attendance records
+          </p>
+        </div>
 
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {/* CONTENT */}
+        <div className="dashboard-content">
+          <div className="dashboard-card">
+            <div className="card-header">
+              <h2 className="card-title">Attendance History</h2>
+            </div>
 
-      {!loading && attendance.length === 0 && (
-        <p>No attendance records found</p>
-      )}
+            <div className="card-body">
+              {loading ? (
+                <p>Loading attendance...</p>
+              ) : attendance.length === 0 ? (
+                <p>No attendance records found</p>
+              ) : (
+                <table className="attendance-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attendance.map((record) => (
+                      <tr key={record.id}>
+                        <td>{record.date}</td>
+                        <td
+                          style={{
+                            color:
+                              record.status === "present"
+                                ? "#10b981"
+                                : "#ef4444",
+                            fontWeight: 500
+                          }}
+                        >
+                          {record.status}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
 
-      {attendance.length > 0 && (
-        <table border="1" cellPadding="10">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {attendance.map((a) => (
-              <tr key={a.id}>
-                <td>{a.date}</td>
-                <td>{a.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      <br />
-      <button onClick={() => navigate("/parent/dashboard")}>
-        Back to Dashboard
-      </button>
-    </div>
+          {/* ACTION CARD */}
+          <div className="dashboard-card">
+            <div className="card-body">
+              <button
+                className="action-btn"
+                onClick={() => navigate("/parent/dashboard")}
+              >
+                ← Back to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </MainLayout>
   );
 };
 

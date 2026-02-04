@@ -3,46 +3,64 @@ const Parent = db.Parent;
 const Student = db.Student;
 const Attendance = db.Attendance;
 const User = db.User;
+const Class = db.Class;
 
-// =====================
-// GET PARENT DASHBOARD
-// =====================
+/* =========================
+   GET PARENT DASHBOARD
+========================= */
 exports.getParentDashboard = async (req, res) => {
   try {
     const userId = req.user.id;
 
     const qi = db.sequelize.getQueryInterface();
-    const parentTableDesc = await qi.describeTable('parents');
+    const parentTableDesc = await qi.describeTable("parents");
 
     let studentId;
 
     if (parentTableDesc && parentTableDesc.student_id) {
-      const QueryTypes = db.Sequelize.QueryTypes;
       const rows = await db.sequelize.query(
-        'SELECT student_id FROM parents WHERE user_id = ? LIMIT 1',
-        { replacements: [userId], type: QueryTypes.SELECT }
+        "SELECT student_id FROM parents WHERE user_id = ? LIMIT 1",
+        {
+          replacements: [userId],
+          type: db.Sequelize.QueryTypes.SELECT
+        }
       );
-      if (!rows || rows.length === 0) return res.status(404).json({ message: "Parent not found" });
+
+      if (!rows.length) return res.status(404).json({ message: "Parent not found" });
       if (!rows[0].student_id) return res.status(404).json({ message: "Child not linked" });
+
       studentId = rows[0].student_id;
     } else {
-      const QueryTypes = db.Sequelize.QueryTypes;
       const parentRows = await db.sequelize.query(
-        'SELECT id FROM parents WHERE user_id = ? LIMIT 1',
-        { replacements: [userId], type: QueryTypes.SELECT }
+        "SELECT id FROM parents WHERE user_id = ? LIMIT 1",
+        {
+          replacements: [userId],
+          type: db.Sequelize.QueryTypes.SELECT
+        }
       );
-      if (!parentRows || parentRows.length === 0) return res.status(404).json({ message: "Parent not found" });
-      const parentId = parentRows[0].id;
-      const link = await db.ParentStudent.findOne({ where: { parent_id: parentId } });
+
+      if (!parentRows.length) return res.status(404).json({ message: "Parent not found" });
+
+      const link = await db.ParentStudent.findOne({
+        where: { parent_id: parentRows[0].id }
+      });
+
       if (!link) return res.status(404).json({ message: "Child not linked" });
+
       studentId = link.student_id;
     }
 
     const student = await Student.findByPk(studentId, {
-      include: {
-        model: User,
-        attributes: ["name"]
-      }
+      include: [
+        {
+          model: User,
+          attributes: ["name"]
+        },
+        {
+          model: Class,
+          attributes: ["class_name"]
+        }
+      ]
     });
 
     if (!student) {
@@ -52,54 +70,72 @@ exports.getParentDashboard = async (req, res) => {
     res.json({
       student_id: student.id,
       student_name: student.User.name,
-      class_id: student.class_id
+      class_id: student.class_id,
+      class_name: student.Class?.class_name || null
     });
 
   } catch (err) {
     console.error("getParentDashboard error:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// =====================
-// GET CHILD (LOGIN USE)
-// =====================
+/* =========================
+   GET MY CHILD
+========================= */
 exports.getMyChild = async (req, res) => {
   try {
     const userId = req.user.id;
 
     const qi = db.sequelize.getQueryInterface();
-    const parentTableDesc = await qi.describeTable('parents');
+    const parentTableDesc = await qi.describeTable("parents");
 
     let studentId;
 
     if (parentTableDesc && parentTableDesc.student_id) {
-      const QueryTypes = db.Sequelize.QueryTypes;
       const rows = await db.sequelize.query(
-        'SELECT student_id FROM parents WHERE user_id = ? LIMIT 1',
-        { replacements: [userId], type: QueryTypes.SELECT }
+        "SELECT student_id FROM parents WHERE user_id = ? LIMIT 1",
+        {
+          replacements: [userId],
+          type: db.Sequelize.QueryTypes.SELECT
+        }
       );
-      if (!rows || rows.length === 0) return res.status(404).json({ message: "Parent not found" });
+
+      if (!rows.length) return res.status(404).json({ message: "Parent not found" });
       if (!rows[0].student_id) return res.status(404).json({ message: "Child not linked" });
+
       studentId = rows[0].student_id;
     } else {
-      const QueryTypes = db.Sequelize.QueryTypes;
       const parentRows = await db.sequelize.query(
-        'SELECT id FROM parents WHERE user_id = ? LIMIT 1',
-        { replacements: [userId], type: QueryTypes.SELECT }
+        "SELECT id FROM parents WHERE user_id = ? LIMIT 1",
+        {
+          replacements: [userId],
+          type: db.Sequelize.QueryTypes.SELECT
+        }
       );
-      if (!parentRows || parentRows.length === 0) return res.status(404).json({ message: "Parent not found" });
-      const parentId = parentRows[0].id;
-      const link = await db.ParentStudent.findOne({ where: { parent_id: parentId } });
+
+      if (!parentRows.length) return res.status(404).json({ message: "Parent not found" });
+
+      const link = await db.ParentStudent.findOne({
+        where: { parent_id: parentRows[0].id }
+      });
+
       if (!link) return res.status(404).json({ message: "Child not linked" });
+
       studentId = link.student_id;
     }
 
     const student = await Student.findByPk(studentId, {
-      include: {
-        model: User,
-        attributes: ["name"]
-      }
+      include: [
+        {
+          model: User,
+          attributes: ["name"]
+        },
+        {
+          model: Class,
+          attributes: ["class_name"]
+        }
+      ]
     });
 
     if (!student) {
@@ -109,7 +145,8 @@ exports.getMyChild = async (req, res) => {
     res.json({
       student_id: student.id,
       student_name: student.User.name,
-      class_id: student.class_id
+      class_id: student.class_id,
+      class_name: student.Class?.class_name || null
     });
 
   } catch (err) {
@@ -118,41 +155,56 @@ exports.getMyChild = async (req, res) => {
   }
 };
 
-// =====================
-// GET CHILD ATTENDANCE
-// =====================
+/* =========================
+   GET CHILD ATTENDANCE
+========================= */
 exports.getChildAttendance = async (req, res) => {
   try {
     const userId = req.user.id;
 
     const qi = db.sequelize.getQueryInterface();
-    const parentTableDesc = await qi.describeTable('parents');
+    const parentTableDesc = await qi.describeTable("parents");
 
     let studentId;
 
     if (parentTableDesc && parentTableDesc.student_id) {
-      const QueryTypes = db.Sequelize.QueryTypes;
       const rows = await db.sequelize.query(
-        'SELECT student_id FROM parents WHERE user_id = ? LIMIT 1',
-        { replacements: [userId], type: QueryTypes.SELECT }
+        "SELECT student_id FROM parents WHERE user_id = ? LIMIT 1",
+        {
+          replacements: [userId],
+          type: db.Sequelize.QueryTypes.SELECT
+        }
       );
-      if (!rows || rows.length === 0) return res.status(404).json({ message: "Parent not found" });
-      if (!rows[0].student_id) return res.status(404).json({ message: "Child not linked to parent" });
+
+      if (!rows.length) return res.status(404).json({ message: "Parent not found" });
+      if (!rows[0].student_id) return res.status(404).json({ message: "Child not linked" });
+
       studentId = rows[0].student_id;
     } else {
-      const QueryTypes = db.Sequelize.QueryTypes;
       const parentRows = await db.sequelize.query(
-        'SELECT id FROM parents WHERE user_id = ? LIMIT 1',
-        { replacements: [userId], type: QueryTypes.SELECT }
+        "SELECT id FROM parents WHERE user_id = ? LIMIT 1",
+        {
+          replacements: [userId],
+          type: db.Sequelize.QueryTypes.SELECT
+        }
       );
-      if (!parentRows || parentRows.length === 0) return res.status(404).json({ message: "Parent not found" });
-      const parentId = parentRows[0].id;
-      const link = await db.ParentStudent.findOne({ where: { parent_id: parentId } });
-      if (!link) return res.status(404).json({ message: "Child not linked to parent" });
+
+      if (!parentRows.length) return res.status(404).json({ message: "Parent not found" });
+
+      const link = await db.ParentStudent.findOne({
+        where: { parent_id: parentRows[0].id }
+      });
+
+      if (!link) return res.status(404).json({ message: "Child not linked" });
+
       studentId = link.student_id;
     }
 
-    const attendance = await Attendance.findAll({ where: { student_id: studentId }, order: [["date", "DESC"]] });
+    const attendance = await Attendance.findAll({
+      where: { student_id: studentId },
+      order: [["date", "DESC"]]
+    });
+
     res.json(attendance);
 
   } catch (err) {

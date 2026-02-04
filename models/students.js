@@ -24,4 +24,13 @@ const Student = sequelize.define(
   }
 );
 
+Student.associate = (models) => {
+  Student.belongsTo(models.classes, {
+    foreignKey: "class_id"
+  });
+  Student.belongsTo(models.user, {
+    foreignKey: "user_id"
+  });
+};
+
 module.exports = Student;

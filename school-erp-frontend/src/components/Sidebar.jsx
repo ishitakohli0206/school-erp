@@ -7,7 +7,7 @@ const Sidebar = () => {
 
   const role = localStorage.getItem("role");
   const dashboardPath =
-    role === "admin" ? "/admin" : role === "student" ? "/student" : "/login";
+    role === "admin" ? "/admin" : role === "student" ? "/student" : role ==="parent" ? "/parent": "/login";
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", path: dashboardPath, icon: "📊" },

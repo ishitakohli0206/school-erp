@@ -13,11 +13,12 @@ const Navbar = () => {
   const handleLogoClick = () => {
     if (role === "admin") navigate("/admin");
     else if (role === "student") navigate("/student");
+    else if (role === "parent") navigate("/parent");
     else navigate("/login");
   };
 
   const roleLabel =
-    role === "admin" ? "Admin" : role === "student" ? "Student" : "Guest";
+    role === "admin" ? "Admin" : role === "student" ? "Student" : role === "parent" ? "Parent" : "Guest";
 
   return (
     <nav className="navbar">

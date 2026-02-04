@@ -15,7 +15,7 @@ const AdminDashboard = () => {
     { title: "Total Students", value: "—", icon: "👥", color: "#3b82f6" },
     { title: "Total Classes", value: "—", icon: "📚", color: "#10b981" },
 
-    // 👉 POINT 3 LINK
+    
     {
       title: "Today's Attendance",
       value: "View",
