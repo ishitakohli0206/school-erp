@@ -8,6 +8,7 @@ import Reports from "./pages/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ParentDashboard from "./pages/parent/ParentDashboard";
 import ParentAttendance from "./pages/parent/ParentAttendance";
+import Unauthorized from "./pages/Unauthorized";
 
 
 
@@ -61,10 +62,29 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+      
+      <Route
+      path="/parent/dashboard"
+      element={
+       <ProtectedRoute allowedRoles={["parent"]}>
+      <ParentDashboard />
+      </ProtectedRoute>
+      }
+     />
+
+     <Route
+       path="/parent/attendance"
+       element={
+         <ProtectedRoute allowedRoles={["parent"]}>
+        <ParentAttendance />
+       </ProtectedRoute>
+       }
+      />
 
       <Route path="*" element={<Navigate to="/login" replace />} />
       <Route path="/parent/dashboard" element={<ParentDashboard />} />
       <Route path="/parent/attendance" element={<ParentAttendance />} />
+      <Route path="/Unauthorized" element={<Unauthorized />} />
 
     </Routes>
     

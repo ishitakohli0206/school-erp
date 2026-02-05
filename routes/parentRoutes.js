@@ -4,7 +4,8 @@ const router = express.Router();
 const {
   getParentDashboard,
   getChildAttendance,
-  getMyChild
+  getMyChild,
+  getParentNotifications
 } = require("../controllers/parentController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -17,6 +18,11 @@ router.get("/attendance", authMiddleware, getChildAttendance);
 
 
 router.get("/my-child", authMiddleware, getMyChild);
+router.get(
+  "/notifications",
+  authMiddleware,
+  getParentNotifications
+);
 
 // ADMIN DEBUG: Link a parent to a student (for testing)
 router.post("/link-student", async (req, res) => {

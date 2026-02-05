@@ -90,7 +90,7 @@
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
-  overflow: hidden;
+  
   display: flex;
   flex-direction: column;
 }
@@ -316,3 +316,37 @@
   color: var(--text-white);
   border-color: var(--primary-color);
 }
+/* ===== Attendance Scroll Fix ===== */
+.attendance-scroll {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+/* Scrollbar styling */
+.attendance-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.attendance-scroll::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 6px;
+}
+
+/* ===== Status Badges ===== */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.status-badge.present {
+  background-color: #10b981;
+}
+
+.status-badge.absent {
+  background-color: #ef4444;
+}
+

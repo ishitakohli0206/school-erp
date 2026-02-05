@@ -4,6 +4,8 @@ const Student = db.Student;
 const Attendance = db.Attendance;
 const User = db.User;
 const Class = db.Class;
+const Notification = db.Notification;
+
 
 /* =========================
    GET PARENT DASHBOARD
@@ -212,6 +214,23 @@ exports.getChildAttendance = async (req, res) => {
     res.status(500).json({
       message: "Unable to fetch attendance",
       error: err.message
+    });
+  }
+};
+exports.getParentNotifications = async (req, res) => {
+  try {
+    const parentId = req.user.id;
+
+    const notifications = await Notification.findAll({
+      where: { parent_id: parentId },
+      order: [["id", "DESC"]],
+    });
+
+    res.status(200).json(notifications);
+  } catch (error) {
+    console.error("Notification error:", error);
+    res.status(500).json({
+      message: "Failed to fetch notifications",
     });
   }
 };

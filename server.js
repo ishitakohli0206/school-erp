@@ -32,6 +32,7 @@ app.use("/classes", classRoutes);
 app.use("/attendance", attendanceRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/parent", parentRoutes);
+app.use("/api/parent", parentRoutes);
 
 
 
