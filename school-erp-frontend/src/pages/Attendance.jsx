@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
-import { markAttendance, getStudentAttendance } from "../services/attendanceService";
+import {
+  markAttendance,
+  getStudentAttendance,
+} from "../services/attendanceService";
 import { getStudents } from "../services/studentService";
 import MainLayout from "../components/MainLayout";
 import "./Attendance.css";
 
 const Attendance = () => {
-  const role = localStorage.getItem("role");
+  // 🔥 FIX: numeric role_id use karo
+  const role_id = Number(JSON.parse(localStorage.getItem("user"))?.role_id);
 
   const [students, setStudents] = useState([]);
   const [studentId, setStudentId] = useState("");
@@ -18,106 +22,89 @@ const Attendance = () => {
   const [records, setRecords] = useState([]);
   const [recordsLoading, setRecordsLoading] = useState(false);
   const [recordsError, setRecordsError] = useState("");
-  
-  // Add debug logging
-  useEffect(() => {
-    console.log("Attendance component mounted. Role:", role);
-  }, []);
 
-  // FETCH STUDENTS (ADMIN)
   useEffect(() => {
-    if (role !== "admin") return;
+    console.log("Attendance mounted | role_id:", role_id);
+  }, [role_id]);
 
-    let isMounted = true;
+  // ============================
+  // FETCH STUDENTS (ADMIN + TEACHER)
+  // ============================
+  useEffect(() => {
+    if (![1, 4].includes(role_id)) return;
+
+    let mounted = true;
     setLoading(true);
     setError("");
 
     getStudents()
       .then((res) => {
-        if (isMounted) {
-          console.log("Students fetched successfully:", res.data);
-          setStudents(res.data || []);
-        }
+        if (mounted) setStudents(res.data || []);
       })
       .catch((err) => {
-        console.error("Error fetching students", err.response || err.message);
-        if (isMounted) setError(`Failed to load students: ${err.response?.data?.message || err.message}`);
+        if (mounted)
+          setError(
+            err.response?.data?.message || "Failed to load students"
+          );
       })
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
+      .finally(() => mounted && setLoading(false));
 
-    return () => {
-      isMounted = false;
-    };
-  }, [role]);
+    return () => (mounted = false);
+  }, [role_id]);
 
-  // FETCH STUDENT ATTENDANCE (STUDENT ROLE)
+  // ============================
+  // FETCH ATTENDANCE (STUDENT ONLY)
+  // ============================
   useEffect(() => {
-    if (role !== "student") return;
+    if (role_id !== 2) return;
 
-    const storedStudentId = localStorage.getItem("student_id");
-    
-    if (!storedStudentId) {
-      console.warn("Student ID not found in localStorage. Available keys:", Object.keys(localStorage));
-      setRecordsError("Student ID not available. Please log out and log in again.");
+    const student_id = localStorage.getItem("student_id");
+    if (!student_id) {
+      setRecordsError("Student ID missing. Re-login required.");
       return;
     }
 
-    console.log("Fetching attendance for student_id:", storedStudentId);
     setRecordsLoading(true);
     setRecordsError("");
-    
-    getStudentAttendance(storedStudentId)
-      .then((res) => {
-        console.log("Attendance records fetched:", res.data);
-        if (Array.isArray(res.data)) {
-          setRecords(res.data);
-        } else {
-          console.warn("Unexpected response format:", res.data);
-          setRecords([]);
-        }
-        setRecordsError("");
-      })
-      .catch((err) => {
-        console.error("Error fetching attendance:", err.response || err.message);
-        const errorMsg = err.response?.data?.message || err.message || "Failed to load attendance records.";
-        console.error("Full error details:", { status: err.response?.status, data: err.response?.data });
-        setRecordsError(errorMsg);
-      })
-      .finally(() => setRecordsLoading(false));
-  }, [role]);
 
-  // MARK ATTENDANCE (ADMIN)
+    getStudentAttendance(student_id)
+      .then((res) => setRecords(res.data || []))
+      .catch((err) =>
+        setRecordsError(
+          err.response?.data?.message || "Failed to load attendance"
+        )
+      )
+      .finally(() => setRecordsLoading(false));
+  }, [role_id]);
+
+  // ============================
+  // MARK ATTENDANCE (ADMIN + TEACHER)
+  // ============================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
 
     if (!studentId || !date) {
-      setError("Student and date are required.");
+      setError("Student and date are required");
       return;
     }
 
     try {
-      const response = await markAttendance({
+      const res = await markAttendance({
         student_id: studentId,
         date,
         status,
       });
 
-      setMessage(response.data?.message || "Attendance marked successfully.");
-      // Reset form
+      setMessage(res.data?.message || "Attendance marked");
       setStudentId("");
       setDate("");
       setStatus("present");
-      
-      // Clear message after 3 seconds
+
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-      console.error(err);
-      const errorMsg = err.response?.data?.message || "Failed to mark attendance.";
-      setError(errorMsg);
+      setError(err.response?.data?.message || "Failed to mark attendance");
     }
   };
 
@@ -127,13 +114,14 @@ const Attendance = () => {
         <div className="page-header">
           <h1 className="page-title">Attendance</h1>
           <p className="page-subtitle">
-            {role === "admin"
+            {[1, 4].includes(role_id)
               ? "Mark attendance for students"
               : "View your attendance records"}
           </p>
         </div>
 
-        {role === "admin" && (
+        {/* ===== ADMIN + TEACHER ===== */}
+        {[1, 4].includes(role_id) && (
           <div className="card">
             <h2 className="section-title">Mark Attendance</h2>
 
@@ -144,9 +132,8 @@ const Attendance = () => {
             {!loading && !error && (
               <form className="form-grid" onSubmit={handleSubmit}>
                 <div className="form-group">
-                  <label htmlFor="student">Student</label>
+                  <label>Student</label>
                   <select
-                    id="student"
                     value={studentId}
                     onChange={(e) => setStudentId(e.target.value)}
                     className="form-input"
@@ -154,17 +141,15 @@ const Attendance = () => {
                     <option value="">Select Student</option>
                     {students.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.User?.name || `Student ${s.id}`}{" "}
-                        {s.Class?.class_name && `— ${s.Class.class_name}`}
+                        {s.User?.name || `Student ${s.id}`}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="date">Date</label>
+                  <label>Date</label>
                   <input
-                    id="date"
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
@@ -173,9 +158,8 @@ const Attendance = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="status">Status</label>
+                  <label>Status</label>
                   <select
-                    id="status"
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                     className="form-input"
@@ -185,17 +169,16 @@ const Attendance = () => {
                   </select>
                 </div>
 
-                <div className="form-actions">
-                  <button type="submit" className="btn-primary">
-                    Mark Attendance
-                  </button>
-                </div>
+                <button type="submit" className="btn-primary">
+                  Mark Attendance
+                </button>
               </form>
             )}
           </div>
         )}
 
-        {role === "student" && (
+        {/* ===== STUDENT ===== */}
+        {role_id === 2 && (
           <div className="card">
             <h2 className="section-title">My Attendance</h2>
 
@@ -203,32 +186,28 @@ const Attendance = () => {
             {recordsError && <p className="error-text">{recordsError}</p>}
 
             {!recordsLoading && !recordsError && (
-              <div className="table-wrapper">
-                <table className="data-table">
-                  <thead>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {records.length === 0 ? (
                     <tr>
-                      <th>Date</th>
-                      <th>Status</th>
+                      <td colSpan="2">No records found</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {records.length === 0 ? (
-                      <tr>
-                        <td colSpan="2" className="empty-row">
-                          No attendance records found.
-                        </td>
+                  ) : (
+                    records.map((r) => (
+                      <tr key={r.id}>
+                        <td>{r.date}</td>
+                        <td>{r.status}</td>
                       </tr>
-                    ) : (
-                      records.map((r) => (
-                        <tr key={r.id || `${r.student_id}-${r.date}`}>
-                          <td>{r.date}</td>
-                          <td>{r.status}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
             )}
           </div>
         )}
