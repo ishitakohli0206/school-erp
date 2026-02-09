@@ -5,12 +5,12 @@ import { useAuth } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
 import "../Dashboard.css";
 
-
 const ParentDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   const [child, setChild] = useState(null);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const fetchChild = async () => {
@@ -22,7 +22,17 @@ const ParentDashboard = () => {
       }
     };
 
+    const fetchNotifications = async () => {
+      try {
+        const res = await axios.get("/parent/notifications");
+        setNotifications(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch notifications", err);
+      }
+    };
+
     fetchChild();
+    fetchNotifications();
   }, []);
 
   if (loading) return <div>Loading...</div>;
@@ -37,7 +47,7 @@ const ParentDashboard = () => {
     },
     {
       title: "Class",
-      value: child?.class_name || "—", 
+      value: child?.class_name || "—",
       icon: "📚",
       color: "#10b981"
     },
@@ -72,7 +82,7 @@ const ParentDashboard = () => {
           </p>
         </div>
 
-        {/* STAT CARDS – EXACT SAME GRID & SPACING */}
+        {/* STAT CARDS */}
         <div className="dashboard-stats">
           {stats.map((stat) => (
             <div
@@ -100,6 +110,7 @@ const ParentDashboard = () => {
 
         {/* CONTENT SECTION */}
         <div className="dashboard-content">
+          {/* QUICK ACTIONS */}
           <div className="dashboard-card">
             <div className="card-header">
               <h2 className="card-title">Quick Actions</h2>
@@ -127,6 +138,32 @@ const ParentDashboard = () => {
             </div>
           </div>
 
+          {/*  NOTIFICATIONS CARD  */}
+          <div className="dashboard-card">
+            <div className="card-header">
+              <h2 className="card-title">Notifications</h2>
+            </div>
+            <div className="card-body">
+              {notifications.length === 0 ? (
+                <p className="empty-state">No notifications available</p>
+              ) : (
+                <ul className="activity-list">
+                  {notifications.map((n) => (
+                    <li key={n.id} className="activity-item">
+                      <p className="activity-text">
+                        <strong>{n.title}</strong> — {n.message}
+                      </p>
+                      <span className="activity-time">
+                        {new Date(n.created_at).toLocaleDateString()}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          {/* RECENT ACTIVITY */}
           <div className="dashboard-card">
             <div className="card-header">
               <h2 className="card-title">Recent Activity</h2>
@@ -142,6 +179,7 @@ const ParentDashboard = () => {
               </ul>
             </div>
           </div>
+
         </div>
       </div>
     </MainLayout>

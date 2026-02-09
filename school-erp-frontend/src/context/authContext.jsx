@@ -8,36 +8,34 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
-    const name = localStorage.getItem("name");
+    const storedUser = localStorage.getItem("user");
 
-    if (!token || !role) {
+    if (!token || !storedUser) {
       setUser(null);
       setLoading(false);
       return;
     }
 
-    setUser({ role, name: name || "User" });
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch {
+      localStorage.clear();
+      setUser(null);
+    }
+
     setLoading(false);
   }, []);
+
+  const refreshUser = async () => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) return setUser(null);
+    setUser(JSON.parse(storedUser));
+  };
 
   const logout = (navigate) => {
     localStorage.clear();
     setUser(null);
     navigate("/login", { replace: true });
-  };
-
-  const refreshUser = async () => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
-    const name = localStorage.getItem("name");
-
-    if (!token || !role) {
-      setUser(null);
-      return;
-    }
-
-    setUser({ role, name: name || "User" });
   };
 
   return (

@@ -45,7 +45,7 @@ db.Class = loadModel("./classes");
 db.Attendance = loadModel("./attendance");
 db.Parent = require("./parents")(sequelize, Sequelize);
 db.Notification = require("./Notification")(sequelize, Sequelize);
-
+db.Teacher = require("./teacher")(sequelize, Sequelize);
 
 
 // Parent - Student

@@ -10,6 +10,7 @@ module.exports = (roleName) => {
       roleName === "admin" ? 1 :
       roleName === "student" ? 2 :
       roleName === "parent" ? 3 :
+      roleName === "teacher" ? 4 :
       null;
 
     if (requiredId === null) {

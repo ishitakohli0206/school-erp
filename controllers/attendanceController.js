@@ -1,9 +1,12 @@
 const db = require("../models");
+
 const Attendance = db.Attendance;
 const Student = db.Student;
 const User = db.User;
+const Notification = db.Notification;
 
-//mark
+
+// mark attendance
 exports.markAttendance = async (req, res) => {
   try {
     const { student_id, date, status } = req.body;
@@ -14,14 +17,25 @@ exports.markAttendance = async (req, res) => {
       });
     }
 
-    const studentExists = await Student.findByPk(student_id);
-    if (!studentExists) {
+    const student = await Student.findByPk(student_id);
+    if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
 
     const existing = await Attendance.findOne({
       where: { student_id, date },
     });
+
+    
+    if (status === "absent" && student.parent_id) {
+      await Notification.create({
+        parent_id: student.parent_id,
+        title: "Attendance Alert",
+        message: `Your child was absent on ${date}`,
+        type: "attendance",
+        is_read: false,
+      });
+    }
 
     if (existing) {
       existing.status = status;
@@ -47,7 +61,6 @@ exports.markAttendance = async (req, res) => {
   }
 };
 
-// stud attendance
 exports.getStudentAttendance = async (req, res) => {
   try {
     const { student_id } = req.params;
@@ -56,13 +69,8 @@ exports.getStudentAttendance = async (req, res) => {
       return res.status(400).json({ message: "student_id is required" });
     }
 
-    const parsedStudentId = parseInt(student_id, 10);
-    if (isNaN(parsedStudentId)) {
-      return res.status(400).json({ message: "Invalid student_id format" });
-    }
-
     const attendance = await Attendance.findAll({
-      where: { student_id: parsedStudentId },
+      where: { student_id },
       order: [["date", "DESC"]],
     });
 
@@ -73,7 +81,7 @@ exports.getStudentAttendance = async (req, res) => {
   }
 };
 
-// class attendance
+
 exports.getClassAttendance = async (req, res) => {
   try {
     const { class_id, date } = req.query;
@@ -102,37 +110,35 @@ exports.getClassAttendance = async (req, res) => {
   }
 };
 
-//reports
 exports.getAttendanceSummary = async (req, res) => {
   try {
     const totalStudents = await Student.count();
-
     const today = new Date().toISOString().split("T")[0];
 
     const presentToday = await Attendance.count({
-      where: { date: today, status: "present" }
+      where: { date: today, status: "present" },
     });
 
     const absentToday = await Attendance.count({
-      where: { date: today, status: "absent" }
+      where: { date: today, status: "absent" },
     });
 
     const recentAttendance = await Attendance.findAll({
       limit: 5,
-      order: [["date", "DESC"]], // 🔥 FIX HERE
+      order: [["date", "DESC"]],
       include: [
         {
           model: Student,
-          include: ["User"]
-        }
-      ]
+          include: [User],
+        },
+      ],
     });
 
     res.json({
       totalStudents,
       presentToday,
       absentToday,
-      recentAttendance
+      recentAttendance,
     });
 
   } catch (error) {

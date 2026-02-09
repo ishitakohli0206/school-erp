@@ -8,20 +8,20 @@ import Reports from "./pages/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ParentDashboard from "./pages/parent/ParentDashboard";
 import ParentAttendance from "./pages/parent/ParentAttendance";
+import ParentNotifications from "./pages/parent/parentNotifications";
+import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import Unauthorized from "./pages/Unauthorized";
-
-
 
 const App = () => {
   return (
     <Routes>
-
       <Route path="/login" element={<Login />} />
 
+      {/* ADMIN */}
       <Route
         path="/admin"
         element={
-          <ProtectedRoute allowedRoles={["admin"]}>
+          <ProtectedRoute allowedRoles={[1]}>
             <AdminDashboard />
           </ProtectedRoute>
         }
@@ -30,17 +30,8 @@ const App = () => {
       <Route
         path="/students"
         element={
-          <ProtectedRoute allowedRoles={["admin"]}>
+          <ProtectedRoute allowedRoles={[1]}>
             <Students />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/attendance"
-        element={
-          <ProtectedRoute allowedRoles={["admin","student"]}>
-            <Attendance />
           </ProtectedRoute>
         }
       />
@@ -48,46 +39,72 @@ const App = () => {
       <Route
         path="/reports"
         element={
-          <ProtectedRoute allowedRoles={["admin"]}>
+          <ProtectedRoute allowedRoles={[1]}>
             <Reports />
           </ProtectedRoute>
         }
       />
 
+      {/* STUDENT */}
       <Route
         path="/student"
         element={
-          <ProtectedRoute allowedRoles={["student"]}>
+          <ProtectedRoute allowedRoles={[2]}>
             <StudentDashboard />
           </ProtectedRoute>
         }
       />
-      
-      <Route
-      path="/parent/dashboard"
-      element={
-       <ProtectedRoute allowedRoles={["parent"]}>
-      <ParentDashboard />
-      </ProtectedRoute>
-      }
-     />
 
-     <Route
-       path="/parent/attendance"
-       element={
-         <ProtectedRoute allowedRoles={["parent"]}>
-        <ParentAttendance />
-       </ProtectedRoute>
-       }
+      <Route
+        path="/attendance"
+        element={
+          <ProtectedRoute allowedRoles={[1, 2]}>
+            <Attendance />
+          </ProtectedRoute>
+        }
       />
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
-      <Route path="/parent/dashboard" element={<ParentDashboard />} />
-      <Route path="/parent/attendance" element={<ParentAttendance />} />
-      <Route path="/Unauthorized" element={<Unauthorized />} />
+      {/* PARENT */}
+      <Route
+        path="/parent/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={[3]}>
+            <ParentDashboard />
+          </ProtectedRoute>
+        }
+      />
 
+      <Route
+        path="/parent/attendance"
+        element={
+          <ProtectedRoute allowedRoles={[3]}>
+            <ParentAttendance />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/parent/notifications"
+        element={
+          <ProtectedRoute allowedRoles={[3]}>
+            <ParentNotifications />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* TEACHER */}
+      <Route
+        path="/teacher/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={[4]}>
+            <TeacherDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
-    
   );
 };
 

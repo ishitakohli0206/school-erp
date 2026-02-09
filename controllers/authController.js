@@ -2,6 +2,7 @@ const db = require("../models");
 const User = db.User;
 const Parent = db.Parent;
 const Student = db.Student;
+const Teacher = db.Teacher;
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -9,7 +10,9 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role_id } = req.body;
+    const { name, email, password, role_id,phone,
+      subject,
+      class_teacher_of } = req.body;
 
     if (!name || !email || !password || !role_id) {
       return res.status(400).json({ message: "All fields are required" });
@@ -28,7 +31,19 @@ exports.register = async (req, res) => {
       password: hashedPassword,
       role_id
     });
-
+     if (Number(role_id === 4)) {
+      if (!Teacher) {
+        return res.status(500).json({ message: "Teacher model not loaded" });
+      }
+      await Teacher.create({
+        user_id: user.id,
+        name,
+        email,
+        phone: phone || null,
+        subject: subject || null,
+        class_teacher_of: class_teacher_of || null
+      });
+    }
    
     if (Number(role_id) === 3) {
       await Parent.create({
@@ -63,6 +78,7 @@ exports.login = async (req, res) => {
     if (user.role_id === 1) role = "admin";
     if (user.role_id === 2) role = "student";
     if (user.role_id === 3) role = "parent";
+    if (user.role_id == 4) role ="teacher";
 
     if (!role) {
       return res.status(400).json({ message: "Invalid role" });
@@ -76,8 +92,8 @@ exports.login = async (req, res) => {
 
     const response = {
       message: "Login successful",
-      token,
-      role,
+      token: token,
+      role_id: user.role_id,
       user_id: user.id,
       name: user.name
     };

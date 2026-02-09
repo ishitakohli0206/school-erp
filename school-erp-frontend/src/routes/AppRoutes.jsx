@@ -7,6 +7,9 @@ import StudentDashboard from "../pages/StudentDashboard";
 import ParentDashboard from "../pages/parent/ParentDashboard";
 import ParentAttendance from "../pages/parent/ParentAttendance";
 import ParentNotifications from "../pages/parent/parentNotifications";
+import TeacherDashboard from "../pages/Teacher/TeacherDashboard";
+import Dashboard from "../pages/Dashboard";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 const AppRoutes = () => {
   return (
@@ -21,11 +24,19 @@ const AppRoutes = () => {
 
       <Route path="/parent/dashboard" element={<ParentDashboard />} />
       <Route path="/parent/attendance" element={<ParentAttendance />} />
+      <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
       <Route
        path="/parent/notifications"
-       element={<ParentNotifications />}
-/>
+       element={<ParentNotifications />}/>
+
+      <Route path="/parent/dashboard" element={<ParentDashboard />} />
+      <Route path="/parent/attendance" element={<ParentAttendance />} />
+      <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+      <Route
+       path="/parent/notifications"
+       element={<ParentNotifications />}/>
     </Routes>
+    
   );
 };
 

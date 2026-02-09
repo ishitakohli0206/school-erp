@@ -26,39 +26,51 @@ const Login = () => {
 
       console.log("RAW LOGIN RESPONSE:", res.data);
 
-      const { token, role, student_id, user_id, name } = res.data;
+      
+      const { token, role_id, student_id, user_id, name } = res.data;
 
-      if (!token || !role) {
+    
+      if (!token || !role_id) {
         throw new Error("Invalid login response from server");
       }
 
-      // 🔐 Store common data
+      //  STORE TOKEN
       localStorage.setItem("token", token);
-      localStorage.setItem("role", role);
-      localStorage.setItem("user_id", user_id);
-      localStorage.setItem("name", name);
+      
+      localStorage.setItem("role", role_id === 1 ? "admin" : role_id === 4 ? "teacher" : "student");
+      
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: user_id,
+          name,
+          role_id,
+        })
+      );
 
-      // Only student gets student_id at login
+      //  Only student gets student_id
       if (student_id) {
         localStorage.setItem("student_id", student_id);
       }
 
+      //  REFRESH AUTH CONTEXT
       await refreshUser();
 
-      // 🚦 Role based navigation
-      if (role === "admin") {
+      //  ROLE_ID BASED NAVIGATION
+      if (role_id === 1) {
         navigate("/admin", { replace: true });
-      } else if (role === "student") {
+      } else if (role_id === 2) {
         navigate("/student", { replace: true });
-      } else if (role === "parent") {
+      } else if (role_id === 3) {
         navigate("/parent/dashboard", { replace: true });
+      } else if (role_id === 4) {
+        navigate("/teacher/dashboard", { replace: true });
       } else {
         setError("Invalid user role");
       }
 
     } catch (err) {
       console.error("LOGIN ERROR:", err);
-
       setError(
         err.response?.data?.message ||
         err.message ||

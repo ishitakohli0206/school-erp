@@ -9,19 +9,44 @@ const ParentAttendance = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [showAlert, setShowAlert] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
         const res = await api.get("/parent/attendance");
-        setAttendance(res.data || []);
+        const data = res.data || [];
+
+        setAttendance(data);
+
+        
+        if (data.length > 0) {
+          const sorted = [...data].sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+          );
+
+          const latest = sorted[0];
+
+          if (latest.status === "absent") {
+            setShowAlert({
+              title: "Attendance Alert",
+              message: `Your child was absent on ${new Date(
+                latest.date
+              ).toLocaleDateString()}`
+            });
+          } else {
+            setShowAlert(null);
+          }
+        }
       } catch (err) {
         console.error("Attendance fetch failed", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchAttendance();
   }, []);
 
@@ -62,6 +87,14 @@ const ParentAttendance = () => {
           </p>
         </div>
 
+        {/* 🔔 ALERT */}
+        {showAlert && (
+          <div className="notification-card">
+            <strong>{showAlert.title}</strong>
+            <p>{showAlert.message}</p>
+          </div>
+        )}
+
         {/* SUMMARY */}
         <div className="dashboard-stats">
           <div className="stat-card">
@@ -94,14 +127,12 @@ const ParentAttendance = () => {
         </div>
 
         <div className="dashboard-content">
-          {/* TABLE */}
           <div className="dashboard-card attendance-card">
             <div className="card-header">
               <h2 className="card-title">Attendance History</h2>
             </div>
 
             <div className="card-body">
-              {/* FILTERS */}
               {!loading && (
                 <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
                   <select
@@ -155,7 +186,6 @@ const ParentAttendance = () => {
             </div>
           </div>
 
-          {/* BACK */}
           <div className="dashboard-card">
             <div className="card-body">
               <button

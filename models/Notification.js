@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      created_at: {
+  type: DataTypes.DATE,
+  field: "created_at"
+}
     },
     {
       tableName: "notifications",   
