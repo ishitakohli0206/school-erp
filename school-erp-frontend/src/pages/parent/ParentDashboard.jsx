@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MainLayout from "../../components/MainLayout";
-import axios from "../../services/api";
+import api from "../../services/api";
 import { useAuth } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
 import "../Dashboard.css";
@@ -9,66 +9,23 @@ const ParentDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  const [child, setChild] = useState(null);
+  const [children, setChildren] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    const fetchChild = async () => {
-      try {
-        const res = await axios.get("/parent/my-child");
-        setChild(res.data);
-      } catch (err) {
-        console.error("Failed to fetch child data", err);
-      }
-    };
-
-    const fetchNotifications = async () => {
-      try {
-        const res = await axios.get("/parent/notifications");
-        setNotifications(res.data || []);
-      } catch (err) {
-        console.error("Failed to fetch notifications", err);
-      }
-    };
-
-    fetchChild();
-    fetchNotifications();
+    api.get("/parent/my-children").then((res) => setChildren(res.data || [])).catch(() => setChildren([]));
+    api.get("/parent/notifications").then((res) => setNotifications(res.data || [])).catch(() => setNotifications([]));
   }, []);
 
   if (loading) return <div>Loading...</div>;
   if (!user) return <div>User not found</div>;
 
+  const firstChild = children[0];
   const stats = [
-    {
-      title: "Child Name",
-      value: child?.student_name || "—",
-      icon: "👤",
-      color: "#3b82f6"
-    },
-    {
-      title: "Class",
-      value: child?.class_name || "—",
-      icon: "📚",
-      color: "#10b981"
-    },
-    {
-      title: "Attendance",
-      value: "View",
-      icon: "✓",
-      color: "#f59e0b",
-      action: () => navigate("/parent/attendance")
-    },
-    {
-      title: "Status",
-      value: "Active",
-      icon: "📋",
-      color: "#ef4444"
-    }
-  ];
-
-  const recentActivities = [
-    { id: 1, activity: "Attendance module available", time: "Today" },
-    { id: 2, activity: "Parent logged in", time: "Just now" }
+    { title: "Children", value: children.length || "-", icon: "CH", color: "#3b82f6" },
+    { title: "Primary Child", value: firstChild?.student_name || "-", icon: "ST", color: "#10b981" },
+    { title: "Attendance", value: "View", icon: "AT", color: "#f59e0b", action: () => navigate("/parent/attendance") },
+    { title: "Notifications", value: notifications.length, icon: "NT", color: "#ef4444", action: () => navigate("/parent/notifications") }
   ];
 
   return (
@@ -77,12 +34,9 @@ const ParentDashboard = () => {
         <div className="dashboard-header">
           <h1 className="dashboard-title">Parent Dashboard</h1>
           <p>Welcome, {user.name}</p>
-          <p className="dashboard-subtitle">
-            Overview of your child’s academic information
-          </p>
+          <p className="dashboard-subtitle">Monitor your child academics and school updates</p>
         </div>
 
-        {/* STAT CARDS */}
         <div className="dashboard-stats">
           {stats.map((stat) => (
             <div
@@ -91,15 +45,7 @@ const ParentDashboard = () => {
               style={{ cursor: stat.action ? "pointer" : "default" }}
               onClick={stat.action}
             >
-              <div
-                className="stat-icon"
-                style={{
-                  backgroundColor: `${stat.color}15`,
-                  color: stat.color
-                }}
-              >
-                {stat.icon}
-              </div>
+              <div className="stat-icon" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>{stat.icon}</div>
               <div className="stat-content">
                 <h3 className="stat-value">{stat.value}</h3>
                 <p className="stat-title">{stat.title}</p>
@@ -108,78 +54,48 @@ const ParentDashboard = () => {
           ))}
         </div>
 
-        {/* CONTENT SECTION */}
         <div className="dashboard-content">
-          {/* QUICK ACTIONS */}
           <div className="dashboard-card">
-            <div className="card-header">
-              <h2 className="card-title">Quick Actions</h2>
-            </div>
+            <div className="card-header"><h2 className="card-title">Quick Actions</h2></div>
             <div className="card-body">
               <div className="quick-actions">
-                <button
-                  className="action-btn"
-                  onClick={() => navigate("/parent/attendance")}
-                >
-                  <span className="action-icon">📅</span>
+                <button className="action-btn" onClick={() => navigate("/parent/attendance")}>
+                  <span className="action-icon">AT</span>
                   <span>View Attendance</span>
                 </button>
-
-                <button className="action-btn" disabled>
-                  <span className="action-icon">📊</span>
-                  <span>Reports</span>
+                <button className="action-btn" onClick={() => navigate("/parent/academics")}>
+                  <span className="action-icon">AC</span>
+                  <span>Results and Fees</span>
                 </button>
-
-                <button className="action-btn" disabled>
-                  <span className="action-icon">✉️</span>
-                  <span>Contact School</span>
+                <button className="action-btn" onClick={() => navigate("/parent/notifications")}>
+                  <span className="action-icon">NT</span>
+                  <span>Notices</span>
+                </button>
+                <button className="action-btn" onClick={() => navigate("/parent/profile")}>
+                  <span className="action-icon">PR</span>
+                  <span>Profile and Receipts</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/*  NOTIFICATIONS CARD  */}
           <div className="dashboard-card">
-            <div className="card-header">
-              <h2 className="card-title">Notifications</h2>
-            </div>
+            <div className="card-header"><h2 className="card-title">Recent Notifications</h2></div>
             <div className="card-body">
               {notifications.length === 0 ? (
                 <p className="empty-state">No notifications available</p>
               ) : (
                 <ul className="activity-list">
-                  {notifications.map((n) => (
+                  {notifications.slice(0, 5).map((n) => (
                     <li key={n.id} className="activity-item">
-                      <p className="activity-text">
-                        <strong>{n.title}</strong> — {n.message}
-                      </p>
-                      <span className="activity-time">
-                        {new Date(n.created_at).toLocaleDateString()}
-                      </span>
+                      <p className="activity-text"><strong>{n.title}</strong>: {n.message}</p>
+                      <span className="activity-time">{n.created_at ? new Date(n.created_at).toLocaleDateString() : "-"}</span>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
           </div>
-
-          {/* RECENT ACTIVITY */}
-          <div className="dashboard-card">
-            <div className="card-header">
-              <h2 className="card-title">Recent Activity</h2>
-            </div>
-            <div className="card-body">
-              <ul className="activity-list">
-                {recentActivities.map((activity) => (
-                  <li key={activity.id} className="activity-item">
-                    <p className="activity-text">{activity.activity}</p>
-                    <span className="activity-time">{activity.time}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
         </div>
       </div>
     </MainLayout>

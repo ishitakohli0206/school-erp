@@ -5,6 +5,8 @@ const Student = db.Student;
 const User = db.User;
 const Notification = db.Notification;
 const Teacher = db.Teacher;
+const ParentStudent = db.ParentStudent;
+const { Op } = require("sequelize");
 
 
 // mark attendance
@@ -27,15 +29,22 @@ exports.markAttendance = async (req, res) => {
       where: { student_id, date },
     });
 
-    
-    if (status === "absent" && student.parent_id) {
-      await Notification.create({
-        parent_id: student.parent_id,
-        title: "Attendance Alert",
-        message: `Your child was absent on ${date}`,
-        type: "attendance",
-        is_read: false,
+    if (status === "absent") {
+      const links = await ParentStudent.findAll({
+        where: { student_id },
+        attributes: ["parent_id"]
       });
+
+      if (links.length) {
+        await Notification.bulkCreate(
+          links.map((link) => ({
+            parent_id: link.parent_id,
+            title: "Attendance Alert",
+            message: `Your child was absent on ${date}`,
+            is_read: false
+          }))
+        );
+      }
     }
 
     if (existing) {
@@ -65,9 +74,37 @@ exports.markAttendance = async (req, res) => {
 exports.getStudentAttendance = async (req, res) => {
   try {
     const { student_id } = req.params;
+    const roleId = Number(req.user.role_id);
 
     if (!student_id) {
       return res.status(400).json({ message: "student_id is required" });
+    }
+
+    if (roleId === 2) {
+      const currentStudent = await Student.findOne({ where: { user_id: req.user.id } });
+      if (!currentStudent || Number(currentStudent.id) !== Number(student_id)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+    }
+
+    if (roleId === 3) {
+      const parent = await db.Parent.findOne({ where: { user_id: req.user.id } });
+      if (!parent) return res.status(403).json({ message: "Access denied" });
+
+      const links = await ParentStudent.findAll({ where: { parent_id: parent.id } });
+      const linkedIds = links.map((link) => Number(link.student_id));
+      if (!linkedIds.includes(Number(student_id)) && Number(parent.student_id) !== Number(student_id)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+    }
+
+    if (roleId === 4) {
+      const teacher = await Teacher.findOne({ where: { user_id: req.user.id } });
+      if (!teacher || !teacher.class_teacher_of) return res.status(403).json({ message: "Access denied" });
+      const validStudent = await Student.findOne({
+        where: { id: student_id, class_id: teacher.class_teacher_of }
+      });
+      if (!validStudent) return res.status(403).json({ message: "Access denied" });
     }
 
     const attendance = await Attendance.findAll({
@@ -86,11 +123,19 @@ exports.getStudentAttendance = async (req, res) => {
 exports.getClassAttendance = async (req, res) => {
   try {
     const { class_id, date } = req.query;
+    const roleId = Number(req.user.role_id);
 
     if (!class_id || !date) {
       return res.status(400).json({
         message: "class_id and date are required",
       });
+    }
+
+    if (roleId === 4) {
+      const teacher = await Teacher.findOne({ where: { user_id: req.user.id } });
+      if (!teacher || Number(teacher.class_teacher_of) !== Number(class_id)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
     }
 
     const attendance = await Attendance.findAll({
@@ -172,7 +217,7 @@ exports.getTeacherAttendance = async (req, res) => {
     const studentIds = students.map((s) => s.id);
 
     const attendance = await Attendance.findAll({
-      where: { student_id: studentIds },
+      where: { student_id: { [Op.in]: studentIds } },
       include: [
         {
           model: Student,

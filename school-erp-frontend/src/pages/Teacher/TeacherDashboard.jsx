@@ -90,6 +90,20 @@ const TeacherDashboard = () => {
           >
             Mark Attendance
           </button>
+          <button
+            className="action-btn"
+            onClick={() => navigate("/teacher/academics")}
+            style={{ marginLeft: "12px" }}
+          >
+            Homework and Results
+          </button>
+          <button
+            className="action-btn"
+            onClick={() => navigate("/teacher/communication")}
+            style={{ marginLeft: "12px" }}
+          >
+            Parent Communication
+          </button>
         </div>
       </div>
     </MainLayout>

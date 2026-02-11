@@ -31,7 +31,7 @@ exports.register = async (req, res) => {
       password: hashedPassword,
       role_id
     });
-     if (Number(role_id === 4)) {
+     if (Number(role_id) === 4) {
       if (!Teacher) {
         return res.status(500).json({ message: "Teacher model not loaded" });
       }

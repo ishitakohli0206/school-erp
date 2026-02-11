@@ -22,11 +22,12 @@ router.get("/debug", (req, res) => {
 });
 
 // SUMMARY ROUTE (FOR REPORTS & DASHBOARD)
-router.get("/summary", getAttendanceSummary);
+router.get("/summary", authMiddleware, getAttendanceSummary);
 
 // Admin or teacher – mark attendance
 router.post(
   "/mark",
+  authMiddleware,
   (req, res, next) => {
     console.log("MARK ATTENDANCE API HIT");
     next();
@@ -37,6 +38,7 @@ router.post(
 // Student-wise attendance
 router.get(
   "/student/:student_id",
+  authMiddleware,
   (req, res, next) => {
     console.log("GET STUDENT ATTENDANCE - Params:", req.params);
     next();
@@ -45,7 +47,7 @@ router.get(
 );
 
 // Class-wise attendance
-router.get("/class", getClassAttendance);
+router.get("/class", authMiddleware, getClassAttendance);
 
 router.get(
   "/teacher",

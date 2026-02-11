@@ -1,27 +1,31 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
-const Class = sequelize.define(
-  "Class",
+const Subject = sequelize.define(
+  "Subject",
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
-    class_name: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    section: {
-      type: DataTypes.STRING,
+    class_id: {
+      type: DataTypes.INTEGER,
       allowNull: false
+    },
+    teacher_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   },
   {
-    tableName: "classes",
+    tableName: "subjects",
     timestamps: false
   }
 );
 
-module.exports = Class;
+module.exports = Subject;

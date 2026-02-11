@@ -31,4 +31,10 @@ router.get(
   teacherController.getMyProfile
 );
 
+router.post(
+  "/parent-updates",
+  authMiddleware,
+  teacherController.sendParentUpdate
+);
+
 module.exports = router;

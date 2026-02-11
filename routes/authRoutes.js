@@ -34,6 +34,8 @@ router.get("/me", verifyToken, async (req, res) => {
     const role =
       user.role_id === 1 ? "admin" :
       user.role_id === 2 ? "student" :
+      user.role_id === 3 ? "parent" :
+      user.role_id === 4 ? "teacher" :
       null;
 
     // If student, also return student_id

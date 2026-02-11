@@ -1,4 +1,4 @@
-const { Teacher, Class, Student, Attendance, User } = require("../models");
+const { Teacher, Class, Student, Attendance, User, ParentStudent, Notification } = require("../models");
 const { Op } = require("sequelize");
 
 /**
@@ -117,5 +117,67 @@ exports.getMyProfile = async (req, res) => {
     res.json(teacher);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.sendParentUpdate = async (req, res) => {
+  try {
+    if (Number(req.user.role_id) !== 4) {
+      return res.status(403).json({ message: "Teacher access required" });
+    }
+
+    const { title, message, student_id } = req.body;
+    if (!title || !message) {
+      return res.status(400).json({ message: "title and message are required" });
+    }
+
+    const teacher = await Teacher.findOne({ where: { user_id: req.user.id } });
+    if (!teacher || !teacher.class_teacher_of) {
+      return res.status(400).json({ message: "Teacher class assignment missing" });
+    }
+
+    let studentIds = [];
+    if (student_id) {
+      const student = await Student.findOne({
+        where: { id: student_id, class_id: teacher.class_teacher_of }
+      });
+      if (!student) {
+        return res.status(403).json({ message: "Student not in your assigned class" });
+      }
+      studentIds = [student.id];
+    } else {
+      const students = await Student.findAll({
+        where: { class_id: teacher.class_teacher_of },
+        attributes: ["id"]
+      });
+      studentIds = students.map((row) => row.id);
+    }
+
+    if (!studentIds.length) {
+      return res.status(400).json({ message: "No students found for communication" });
+    }
+
+    const links = await ParentStudent.findAll({
+      where: { student_id: { [Op.in]: studentIds } }
+    });
+
+    if (!links.length) {
+      return res.status(200).json({ message: "No linked parents found for selected students" });
+    }
+
+    await Notification.bulkCreate(
+      links.map((link) => ({
+        parent_id: link.parent_id,
+        title,
+        message,
+        is_read: false,
+        created_at: new Date()
+      }))
+    );
+
+    return res.status(201).json({ message: "Parent update sent successfully" });
+  } catch (error) {
+    console.error("sendParentUpdate error:", error);
+    return res.status(500).json({ message: "Failed to send parent update" });
   }
 };

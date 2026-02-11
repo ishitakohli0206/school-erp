@@ -16,6 +16,15 @@ const studentRoutes = require("./routes/studentRoutes");
 const parentRoutes = require("./routes/parentRoutes");
 
 const teacherRoutes = require("./routes/teacherRoutes");
+const noticeRoutes = require("./routes/noticeRoutes");
+const assignmentRoutes = require("./routes/assignmentRoutes");
+const resultRoutes = require("./routes/resultRoutes");
+const feeRoutes = require("./routes/feeRoutes");
+const subjectRoutes = require("./routes/subjectRoutes");
+const erpRoutes = require("./routes/erpRoutes");
+const publicRoutes = require("./routes/publicRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const adminModuleRoutes = require("./routes/adminModuleRoutes");
 
 
 
@@ -35,6 +44,15 @@ app.use("/api/students", studentRoutes);
 app.use("/parent", parentRoutes);
 app.use("/api/parent", parentRoutes);
 app.use("/teacher", teacherRoutes);
+app.use("/notices", noticeRoutes);
+app.use("/assignments", assignmentRoutes);
+app.use("/results", resultRoutes);
+app.use("/fees", feeRoutes);
+app.use("/subjects", subjectRoutes);
+app.use("/erp", erpRoutes);
+app.use("/public", publicRoutes);
+app.use("/profile", profileRoutes);
+app.use("/admin/modules", adminModuleRoutes);
 
 
 app.get("/", (req, res) => {
