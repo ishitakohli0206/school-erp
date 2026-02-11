@@ -6,7 +6,9 @@ const {
   getStudentAttendance,
   getClassAttendance,
   getAttendanceSummary,
+  getTeacherAttendance
 } = require("../controllers/attendanceController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 
 router.use((req, res, next) => {
@@ -44,5 +46,11 @@ router.get(
 
 // Class-wise attendance
 router.get("/class", getClassAttendance);
+
+router.get(
+  "/teacher",
+  authMiddleware,
+  getTeacherAttendance
+);
 
 module.exports = router;

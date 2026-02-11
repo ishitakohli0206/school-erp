@@ -37,7 +37,18 @@ const Login = () => {
       //  STORE TOKEN
       localStorage.setItem("token", token);
       
-      localStorage.setItem("role", role_id === 1 ? "admin" : role_id === 4 ? "teacher" : "student");
+      localStorage.setItem(
+        "role",
+        role_id === 1
+          ? "admin"
+          : role_id === 2
+          ? "student"
+          : role_id === 3
+          ? "parent"
+          : role_id === 4
+          ? "teacher"
+          : "guest"
+      );
       
       localStorage.setItem(
         "user",

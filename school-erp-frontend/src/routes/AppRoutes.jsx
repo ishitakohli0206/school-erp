@@ -10,6 +10,8 @@ import ParentNotifications from "../pages/parent/parentNotifications";
 import TeacherDashboard from "../pages/Teacher/TeacherDashboard";
 import Dashboard from "../pages/Dashboard";
 import ProtectedRoute from "../components/ProtectedRoute";
+import Students from "../pages/Students";
+
 
 const AppRoutes = () => {
   return (
@@ -32,6 +34,7 @@ const AppRoutes = () => {
       <Route path="/parent/dashboard" element={<ParentDashboard />} />
       <Route path="/parent/attendance" element={<ParentAttendance />} />
       <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+      <Route path="/students" element={<Students />} />
       <Route
        path="/parent/notifications"
        element={<ParentNotifications />}/>

@@ -1,15 +1,22 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   markAttendance,
   getStudentAttendance,
+  getTeacherAttendance
 } from "../services/attendanceService";
 import { getStudents } from "../services/studentService";
+import { getTeacherStudents } from "../services/teacherAPI";
 import MainLayout from "../components/MainLayout";
 import "./Attendance.css";
 
 const Attendance = () => {
-  // 🔥 FIX: numeric role_id use karo
+  const location = useLocation();
+  const queryType = new URLSearchParams(location.search).get("type");
+
   const role_id = Number(JSON.parse(localStorage.getItem("user"))?.role_id);
+  const isTeacherAttendanceView =
+    role_id === 4 && location.pathname === "/teacher/attendance/view";
 
   const [students, setStudents] = useState([]);
   const [studentId, setStudentId] = useState("");
@@ -22,6 +29,9 @@ const Attendance = () => {
   const [records, setRecords] = useState([]);
   const [recordsLoading, setRecordsLoading] = useState(false);
   const [recordsError, setRecordsError] = useState("");
+  const [teacherRecords, setTeacherRecords] = useState([]);
+  const [teacherRecordsLoading, setTeacherRecordsLoading] = useState(false);
+  const [teacherRecordsError, setTeacherRecordsError] = useState("");
 
   useEffect(() => {
     console.log("Attendance mounted | role_id:", role_id);
@@ -37,7 +47,9 @@ const Attendance = () => {
     setLoading(true);
     setError("");
 
-    getStudents()
+    const fetchStudents = role_id === 4 ? getTeacherStudents : getStudents;
+
+    fetchStudents()
       .then((res) => {
         if (mounted) setStudents(res.data || []);
       })
@@ -56,7 +68,7 @@ const Attendance = () => {
   // FETCH ATTENDANCE (STUDENT ONLY)
   // ============================
   useEffect(() => {
-    if (role_id !== 2) return;
+    if (role_id !== 2 ) return;
 
     const student_id = localStorage.getItem("student_id");
     if (!student_id) {
@@ -76,6 +88,34 @@ const Attendance = () => {
       )
       .finally(() => setRecordsLoading(false));
   }, [role_id]);
+
+  // ============================
+  // FETCH TEACHER ATTENDANCE VIEW (REAL DB DATA)
+  // ============================
+  useEffect(() => {
+    if (!isTeacherAttendanceView) return;
+
+    setTeacherRecordsLoading(true);
+    setTeacherRecordsError("");
+
+    getTeacherAttendance()
+      .then((res) => {
+        const today = new Date().toISOString().split("T")[0];
+        let rows = (res.data || []).filter((r) => r.date === today);
+
+        if (queryType === "present" || queryType === "absent") {
+          rows = rows.filter((r) => r.status === queryType);
+        }
+
+        setTeacherRecords(rows);
+      })
+      .catch((err) => {
+        setTeacherRecordsError(
+          err.response?.data?.message || "Failed to load teacher attendance"
+        );
+      })
+      .finally(() => setTeacherRecordsLoading(false));
+  }, [isTeacherAttendanceView, queryType]);
 
   // ============================
   // MARK ATTENDANCE (ADMIN + TEACHER)
@@ -173,6 +213,51 @@ const Attendance = () => {
                   Mark Attendance
                 </button>
               </form>
+            )}
+          </div>
+        )}
+
+        {/* ===== TEACHER ATTENDANCE VIEW ===== */}
+        {isTeacherAttendanceView && (
+          <div className="card">
+            <h2 className="section-title">
+              {queryType === "present"
+                ? "Present Today"
+                : queryType === "absent"
+                ? "Absent Today"
+                : "Today's Attendance"}
+            </h2>
+
+            {teacherRecordsLoading && <p>Loading attendance...</p>}
+            {teacherRecordsError && (
+              <p className="error-text">{teacherRecordsError}</p>
+            )}
+
+            {!teacherRecordsLoading && !teacherRecordsError && (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Student Name</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {teacherRecords.length === 0 ? (
+                    <tr>
+                      <td colSpan="3">No records found</td>
+                    </tr>
+                  ) : (
+                    teacherRecords.map((r) => (
+                      <tr key={r.id}>
+                        <td>{r.date}</td>
+                        <td>{r.Student?.User?.name || "-"}</td>
+                        <td>{r.status}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             )}
           </div>
         )}

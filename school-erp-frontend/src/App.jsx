@@ -12,6 +12,7 @@ import ParentNotifications from "./pages/parent/parentNotifications";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import Unauthorized from "./pages/Unauthorized";
 import StudentList from "./pages/Teacher/StudentList";
+import TeacherClasses from "./pages/Teacher/TeacherClasses";
 
 const App = () => {
   return (
@@ -111,6 +112,14 @@ const App = () => {
             </ProtectedRoute>
           }
 />
+      <Route
+        path="/teacher/classes"
+        element={
+          <ProtectedRoute allowedRoles={[4]}>
+            <TeacherClasses />
+          </ProtectedRoute>
+        }
+      />
      <Route
             path="/teacher/attendance"
            element={
@@ -119,6 +128,14 @@ const App = () => {
             </ProtectedRoute>
           }
            />
+      <Route
+        path="/teacher/attendance/view"
+        element={
+          <ProtectedRoute allowedRoles={[4]}>
+            <Attendance />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<Navigate to="/login" replace />} />

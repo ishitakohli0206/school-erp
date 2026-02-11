@@ -4,6 +4,7 @@ const Attendance = db.Attendance;
 const Student = db.Student;
 const User = db.User;
 const Notification = db.Notification;
+const Teacher = db.Teacher;
 
 
 // mark attendance
@@ -144,5 +145,46 @@ exports.getAttendanceSummary = async (req, res) => {
   } catch (error) {
     console.error("Attendance summary error:", error);
     res.status(500).json({ message: "Failed to load attendance summary" });
+  }
+};
+
+
+
+exports.getTeacherAttendance = async (req, res) => {
+  try {
+    if (req.user.role_id !== 4) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const teacher = await Teacher.findOne({
+      where: { user_id: req.user.id },
+    });
+
+    if (!teacher || !teacher.class_teacher_of) {
+      return res.json([]);
+    }
+
+    const students = await Student.findAll({
+      where: { class_id: teacher.class_teacher_of },
+      attributes: ["id"],
+    });
+
+    const studentIds = students.map((s) => s.id);
+
+    const attendance = await Attendance.findAll({
+      where: { student_id: studentIds },
+      include: [
+        {
+          model: Student,
+          include: [{ model: User, attributes: ["name"] }],
+        },
+      ],
+      order: [["date", "DESC"]],
+    });
+
+    res.json(attendance);
+  } catch (err) {
+    console.error("Teacher attendance error", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
