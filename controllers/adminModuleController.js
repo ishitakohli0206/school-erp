@@ -297,10 +297,7 @@ exports.linkParentStudent = async (req, res) => {
       }
     });
 
-    if (Object.prototype.hasOwnProperty.call(parent.dataValues, "student_id") && !parent.student_id) {
-      parent.student_id = Number(student_id);
-      await parent.save();
-    }
+    // do not write to removed `student_id` column on Parent; junction table holds links
 
     return res.status(201).json({ message: "Parent linked to student successfully" });
   } catch (error) {

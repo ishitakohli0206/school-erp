@@ -1,7 +1,8 @@
 const db = require("../../models");
 
 const getParentRecord = async (userId) => {
-  return db.Parent.findOne({ where: { user_id: userId } });
+  // only request columns that exist in the DB to avoid selecting removed fields
+  return db.Parent.findOne({ where: { user_id: userId }, attributes: ["id", "user_id"] });
 };
 
 const getLinkedStudentIds = async (userId) => {
@@ -10,13 +11,7 @@ const getLinkedStudentIds = async (userId) => {
 
   const studentIds = new Set();
 
-  if (parent.student_id) {
-    studentIds.add(parent.student_id);
-  }
-
-  const links = await db.ParentStudent.findAll({
-    where: { parent_id: parent.id }
-  });
+  const links = await db.ParentStudent.findAll({ where: { parent_id: parent.id } });
 
   links.forEach((link) => studentIds.add(link.student_id));
   return Array.from(studentIds);

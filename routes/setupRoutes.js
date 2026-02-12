@@ -13,6 +13,7 @@ router.post("/create-test-data", async (req, res) => {
     const Student = db.Student;
     const Class = db.Class;
     const Attendance = db.Attendance;
+    const ParentStudent = db.ParentStudent;
 
     // 1. Create a test class
     let testClass = await Class.findOne({ where: { class_name: "Test Class" } });
@@ -63,15 +64,15 @@ router.post("/create-test-data", async (req, res) => {
     // 5. Create a parent record linked to the student
     let parent = await Parent.findOne({ where: { user_id: parentUser.id } });
     if (!parent) {
-      parent = await Parent.create({
-        user_id: parentUser.id,
-        student_id: student.id
-      });
+      parent = await Parent.create({ user_id: parentUser.id });
       console.log("Created parent:", parent.id);
-    } else if (!parent.student_id) {
-      parent.student_id = student.id;
-      await parent.save();
-      console.log("Updated parent with student_id:", student.id);
+    }
+
+    // ensure a parent_student link exists for the created test student
+    const existingLink = await ParentStudent.findOne({ where: { parent_id: parent.id, student_id: student.id } });
+    if (!existingLink) {
+      await ParentStudent.create({ parent_id: parent.id, student_id: student.id });
+      console.log("Linked parent to student via parent_student table");
     }
 
     // 6. Create test attendance records
@@ -111,7 +112,7 @@ router.post("/create-test-data", async (req, res) => {
         },
         parent: {
           id: parent.id,
-          linkedStudentId: parent.student_id
+          linkedStudentId: student.id
         },
         attendanceRecords: attendanceRecords.length
       }

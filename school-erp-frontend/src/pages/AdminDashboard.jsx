@@ -84,6 +84,10 @@ const AdminDashboard = () => {
                   <span className="action-icon">OP</span>
                   <span>Operations</span>
                 </button>
+                <button className="action-btn" onClick={() => navigate("/admin/operations#payroll")} title="Manage teacher payroll and salary payments">
+                  <span className="action-icon">$</span>
+                  <span>Payroll</span>
+                </button>
               </div>
             </div>
           </div>

@@ -120,10 +120,12 @@ exports.getChildAttendance = async (req, res) => {
 
 exports.getParentNotifications = async (req, res) => {
   try {
-    const parentUserId = req.user.id;
+    // resolve Parent record for the logged-in user (req.user.id is the User id)
+    const parent = await db.Parent.findOne({ where: { user_id: req.user.id }, attributes: ["id"] });
+    if (!parent) return res.status(404).json({ message: "Parent record not found" });
 
     const notifications = await Notification.findAll({
-      where: { parent_id: parentUserId },
+      where: { parent_id: parent.id },
       order: [["id", "DESC"]]
     });
 

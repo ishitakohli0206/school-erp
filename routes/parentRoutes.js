@@ -31,11 +31,6 @@ router.post("/link-student", async (req, res) => {
     const parent = await db.Parent.findByPk(parent_id);
     if (!parent) return res.status(404).json({ message: "Parent not found" });
 
-    if (Object.prototype.hasOwnProperty.call(parent.dataValues, "student_id")) {
-      parent.student_id = student_id;
-      await parent.save();
-    }
-
     await db.ParentStudent.findOrCreate({
       where: { parent_id, student_id },
       defaults: { parent_id, student_id }

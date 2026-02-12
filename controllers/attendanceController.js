@@ -88,12 +88,12 @@ exports.getStudentAttendance = async (req, res) => {
     }
 
     if (roleId === 3) {
-      const parent = await db.Parent.findOne({ where: { user_id: req.user.id } });
+      const parent = await db.Parent.findOne({ where: { user_id: req.user.id }, attributes: ["id", "user_id"] });
       if (!parent) return res.status(403).json({ message: "Access denied" });
 
       const links = await ParentStudent.findAll({ where: { parent_id: parent.id } });
       const linkedIds = links.map((link) => Number(link.student_id));
-      if (!linkedIds.includes(Number(student_id)) && Number(parent.student_id) !== Number(student_id)) {
+      if (!linkedIds.includes(Number(student_id))) {
         return res.status(403).json({ message: "Access denied" });
       }
     }

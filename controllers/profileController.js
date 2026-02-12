@@ -21,7 +21,7 @@ exports.getMyProfile = async (req, res) => {
     }
 
     if (roleId === 3) {
-      roleProfile = await Parent.findOne({ where: { user_id: user.id } });
+      roleProfile = await Parent.findOne({ where: { user_id: user.id }, attributes: ["id", "user_id"] });
     }
 
     if (roleId === 4) {
