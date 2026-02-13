@@ -241,20 +241,7 @@ const AdminOperations = () => {
           <p>Parents: {parents.map((p) => `${p.id}-${p.User?.name || "-"}`).join(", ") || "None"}</p>
         </div>
 
-        <div className="card">
-          <h2>Role & Permission Management</h2>
-          <table className="data-table">
-            <thead><tr><th>Role</th><th>Permissions</th></tr></thead>
-            <tbody>
-              {Object.keys(permissions).map((role) => (
-                <tr key={role}>
-                  <td>{role}</td>
-                  <td>{(permissions[role] || []).join(", ")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      
 
         <div className="card">
           <h2>Admission Enquiries</h2>

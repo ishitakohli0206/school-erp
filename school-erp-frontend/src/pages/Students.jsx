@@ -52,14 +52,16 @@ const Students = () => {
                 <thead>
                   <tr>
                     <th>Student ID</th>
-                    <th>User ID</th>
+                    <th>Student Name</th>
+                    <th>Email</th>
+                    <th>Class</th>
                     <th>Class ID</th>
                   </tr>
                 </thead>
                 <tbody>
                   {students.length === 0 ? (
                     <tr>
-                      <td colSpan="3" className="empty-row">
+                      <td colSpan="5" className="empty-row">
                         No students found
                       </td>
                     </tr>
@@ -67,7 +69,9 @@ const Students = () => {
                     students.map((s) => (
                       <tr key={s.id}>
                         <td>{s.id}</td>
-                        <td>{s.user_id}</td>
+                        <td>{s.User?.name || "N/A"}</td>
+                        <td>{s.User?.email || "N/A"}</td>
+                        <td>{s.Class?.class_name || "N/A"}</td>
                         <td>{s.class_id}</td>
                       </tr>
                     ))
