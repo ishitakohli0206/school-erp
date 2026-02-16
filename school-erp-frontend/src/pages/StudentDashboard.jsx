@@ -29,7 +29,7 @@ const StudentDashboard = () => {
   const stats = [
     { title: "Enrolled Classes", value: "1", icon: "CL", color: "#3b82f6" },
     { title: "Attendance", value: loading ? "..." : attendancePercent, icon: "AT", color: "#10b981" },
-    { title: "Assignments", value: "View", icon: "AS", color: "#f59e0b" },
+    { title: "Assignments", value: "View", icon: "AS", color: "#f59e0b", action: () => navigate("/student/academics") },
     { title: "Results and Fees", value: "Open", icon: "RF", color: "#6366f1" }
   ];
 
@@ -43,7 +43,12 @@ const StudentDashboard = () => {
 
         <div className="dashboard-stats">
           {stats.map((stat) => (
-            <div key={stat.title} className="stat-card">
+            <div 
+              key={stat.title} 
+              className="stat-card"
+              style={{ cursor: stat.action ? "pointer" : "default" }}
+              onClick={stat.action}
+            >
               <div className="stat-icon" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>{stat.icon}</div>
               <div className="stat-content">
                 <h3 className="stat-value">{stat.value}</h3>

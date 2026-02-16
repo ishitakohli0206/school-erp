@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "../../components/MainLayout";
 import { createAssignment, getAssignments, getExamConfigs, getResults, getSubjects, saveResult } from "../../services/erpService";
 
-const initialAssignment = { title: "", description: "", due_date: "", class_id: "", subject_id: "" };
+const initialAssignment = { title: "", description: "", due_date: "", class_id: "", subject_id: "", file: null };
 const initialResult = { student_id: "", subject_id: "", exam_name: "", max_marks: "100", obtained_marks: "", exam_date: "" };
 
 const TeacherAcademics = () => {
@@ -39,16 +39,32 @@ const TeacherAcademics = () => {
   const handleAssignment = async (e) => {
     e.preventDefault();
     try {
-      await createAssignment({
-        ...assignmentForm,
-        class_id: Number(assignmentForm.class_id),
-        subject_id: assignmentForm.subject_id ? Number(assignmentForm.subject_id) : null
-      });
+      if (!assignmentForm.title.trim() || !assignmentForm.due_date || !assignmentForm.class_id) {
+        setStatus("Title, due date and class are required");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("title", assignmentForm.title);
+      formData.append("description", assignmentForm.description);
+      formData.append("due_date", assignmentForm.due_date);
+      formData.append("class_id", Number(assignmentForm.class_id));
+      if (assignmentForm.subject_id) {
+        formData.append("subject_id", Number(assignmentForm.subject_id));
+      }
+      if (assignmentForm.file) {
+        formData.append("file", assignmentForm.file);
+      }
+
+      const result = await createAssignment(formData);
+      console.log("Assignment created:", result);
       setAssignmentForm(initialAssignment);
       setStatus("Assignment uploaded");
       loadData();
     } catch (error) {
-      setStatus(error.response?.data?.message || "Failed to upload assignment");
+      console.error("Assignment creation error:", error);
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message || "Failed to upload assignment";
+      setStatus(errorMsg);
     }
   };
 
@@ -82,16 +98,17 @@ const TeacherAcademics = () => {
         <div className="card">
           <h2>Upload Homework / Assignment</h2>
           <form className="form-grid" onSubmit={handleAssignment}>
-            <input className="form-input" placeholder="Title" value={assignmentForm.title} onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })} />
+            <input className="form-input" placeholder="Title" value={assignmentForm.title} onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })} required />
             <input className="form-input" placeholder="Description" value={assignmentForm.description} onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })} />
-            <input className="form-input" type="date" value={assignmentForm.due_date} onChange={(e) => setAssignmentForm({ ...assignmentForm, due_date: e.target.value })} />
-            <input className="form-input" type="number" placeholder="Class ID" value={assignmentForm.class_id} onChange={(e) => setAssignmentForm({ ...assignmentForm, class_id: e.target.value })} />
+            <input className="form-input" type="date" value={assignmentForm.due_date} onChange={(e) => setAssignmentForm({ ...assignmentForm, due_date: e.target.value })} required />
+            <input className="form-input" type="number" placeholder="Class ID" value={assignmentForm.class_id} onChange={(e) => setAssignmentForm({ ...assignmentForm, class_id: e.target.value })} required />
             <select className="form-input" value={assignmentForm.subject_id} onChange={(e) => setAssignmentForm({ ...assignmentForm, subject_id: e.target.value })}>
               <option value="">Select Subject</option>
               {subjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>{subject.name}</option>
               ))}
             </select>
+            <input className="form-input" type="file" onChange={(e) => setAssignmentForm({ ...assignmentForm, file: e.target.files?.[0] || null })} />
             <button className="btn-primary" type="submit">Upload</button>
           </form>
         </div>
@@ -117,17 +134,27 @@ const TeacherAcademics = () => {
         <div className="card">
           <h2>Assignments</h2>
           <table className="data-table">
-            <thead><tr><th>Title</th><th>Subject</th><th>Class</th><th>Due Date</th></tr></thead>
+            <thead><tr><th>Title</th><th>Description</th><th>Subject</th><th>Class</th><th>Due Date</th><th>File</th></tr></thead>
             <tbody>
               {assignments.length === 0 ? (
-                <tr><td colSpan="4">No assignments</td></tr>
+                <tr><td colSpan="6">No assignments</td></tr>
               ) : (
                 assignments.map((assignment) => (
                   <tr key={assignment.id}>
                     <td>{assignment.title}</td>
+                    <td>{assignment.description || "-"}</td>
                     <td>{assignment.Subject?.name || "-"}</td>
                     <td>{assignment.Class?.class_name || "-"}</td>
                     <td>{assignment.due_date}</td>
+                    <td>
+                      {assignment.file_path ? (
+                        <a href={`/uploads/${assignment.file_path}`} download style={{ color: "#3b82f6", textDecoration: "underline" }}>
+                          Download
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                   </tr>
                 ))
               )}

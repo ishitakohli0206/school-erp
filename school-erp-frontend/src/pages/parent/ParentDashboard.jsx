@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import MainLayout from "../../components/MainLayout";
 import api from "../../services/api";
 import { useAuth } from "../../context/authContext";
@@ -11,6 +11,7 @@ const ParentDashboard = () => {
 
   const [children, setChildren] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [fees, setFees] = useState([]);
 
   useEffect(() => {
     api.get("/parent/my-children").then((res) => setChildren(res.data || [])).catch(() => setChildren([]));
@@ -25,7 +26,17 @@ const ParentDashboard = () => {
         setNotifications(merged);
       })
       .catch(() => setNotifications([]));
+
+    // fetch fees for all linked children
+    api.get("/fees")
+      .then((res) => setFees(res.data || []))
+      .catch(() => setFees([]));
   }, []);
+
+  const totalDue = useMemo(
+    () => fees.reduce((acc, fee) => acc + Math.max(0, Number(fee.amount_due) - Number(fee.amount_paid)), 0),
+    [fees]
+  );
 
   if (loading) return <div>Loading...</div>;
   if (!user) return <div>User not found</div>;
@@ -35,7 +46,7 @@ const ParentDashboard = () => {
     { title: "Children", value: children.length || "-", icon: "CH", color: "#3b82f6" },
     { title: "Primary Child", value: firstChild?.student_name || "-", icon: "ST", color: "#10b981" },
     { title: "Attendance", value: "View", icon: "AT", color: "#f59e0b", action: () => navigate("/parent/attendance") },
-    { title: "Notifications", value: notifications.length, icon: "NT", color: "#ef4444", action: () => navigate("/parent/notifications") }
+    { title: "Total Fee Due", value: totalDue.toFixed(2), icon: "FE", color: "#ef4444" }
   ];
 
   return (

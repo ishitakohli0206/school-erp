@@ -105,8 +105,9 @@ const ParentAcademics = () => {
           </div>
 
           <div className="dashboard-card">
-            <div className="card-header"><h2 className="card-title">Fee Status</h2></div>
+            <div className="card-header"><h2 className="card-title">Fee Status & Payment History</h2></div>
             <div className="card-body">
+              <p><strong>Fee Status</strong></p>
               <table className="data-table">
                 <thead><tr><th>Student</th><th>Term</th><th>Due</th><th>Paid</th><th>Status</th></tr></thead>
                 <tbody>
@@ -125,6 +126,26 @@ const ParentAcademics = () => {
                   )}
                 </tbody>
               </table>
+
+              <p style={{ marginTop: "1rem" }}><strong>Payment History</strong></p>
+              <table className="data-table">
+                <thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead>
+                <tbody>
+                  {payments.length === 0 ? (
+                    <tr><td colSpan="5">No payment history</td></tr>
+                  ) : (
+                    payments.map((row) => (
+                      <tr key={row.id}>
+                        <td>{row.reference_no}</td>
+                        <td>{row.Student?.User?.name || "-"}</td>
+                        <td>{row.amount}</td>
+                        <td>{row.payment_method || "-"}</td>
+                        <td>{row.paid_on}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -135,7 +156,8 @@ const ParentAcademics = () => {
               <ul className="activity-list">
                 {assignments.slice(0, 5).map((assignment) => (
                   <li className="activity-item" key={assignment.id}>
-                    <p className="activity-text">{assignment.title} ({assignment.Subject?.name || "General"})</p>
+                    <p className="activity-text"><strong>{assignment.title}</strong> ({assignment.Subject?.name || "General"})</p>
+                    <p className="activity-text">{assignment.description || "No description"}</p>
                     <span className="activity-time">Due: {assignment.due_date}</span>
                   </li>
                 ))}
@@ -153,9 +175,8 @@ const ParentAcademics = () => {
           </div>
 
           <div className="dashboard-card">
-            <div className="card-header"><h2 className="card-title">Exam Schedule & Receipts</h2></div>
+            <div className="card-header"><h2 className="card-title">Exam Schedule</h2></div>
             <div className="card-body">
-              <p><strong>Exam Configurations</strong></p>
               <table className="data-table">
                 <thead><tr><th>Exam</th><th>Class</th><th>Start</th><th>End</th></tr></thead>
                 <tbody>
@@ -168,25 +189,6 @@ const ParentAcademics = () => {
                         <td>{exam.Class?.class_name || "-"}</td>
                         <td>{exam.start_date}</td>
                         <td>{exam.end_date}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-
-              <p style={{ marginTop: "0.75rem" }}><strong>Recent Receipts</strong></p>
-              <table className="data-table">
-                <thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Date</th></tr></thead>
-                <tbody>
-                  {payments.length === 0 ? (
-                    <tr><td colSpan="4">No payments</td></tr>
-                  ) : (
-                    payments.slice(0, 5).map((row) => (
-                      <tr key={row.id}>
-                        <td>{row.reference_no}</td>
-                        <td>{row.Student?.User?.name || "-"}</td>
-                        <td>{row.amount}</td>
-                        <td>{row.paid_on}</td>
                       </tr>
                     ))
                   )}

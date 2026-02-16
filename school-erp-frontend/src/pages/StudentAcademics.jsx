@@ -99,16 +99,26 @@ const StudentAcademics = () => {
         <div className="card">
           <h2>Homework / Assignments</h2>
           <table className="data-table">
-            <thead><tr><th>Title</th><th>Subject</th><th>Due Date</th></tr></thead>
+            <thead><tr><th>Title</th><th>Description</th><th>Subject</th><th>Due Date</th><th>File</th></tr></thead>
             <tbody>
               {assignments.length === 0 ? (
-                <tr><td colSpan="3">No assignments</td></tr>
+                <tr><td colSpan="5">No assignments</td></tr>
               ) : (
                 assignments.map((assignment) => (
                   <tr key={assignment.id}>
                     <td>{assignment.title}</td>
+                    <td>{assignment.description || "-"}</td>
                     <td>{assignment.Subject?.name || "-"}</td>
                     <td>{assignment.due_date}</td>
+                    <td>
+                      {assignment.file_path ? (
+                        <a href={`/uploads/${assignment.file_path}`} download style={{ color: "#3b82f6", textDecoration: "underline" }}>
+                          Download
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                   </tr>
                 ))
               )}
@@ -169,16 +179,25 @@ const StudentAcademics = () => {
         <div className="card">
           <h2>School Notices</h2>
           <table className="data-table">
-            <thead><tr><th>Title</th><th>Message</th><th>Date</th></tr></thead>
+            <thead><tr><th>Title</th><th>Message</th><th>Date</th><th>File</th></tr></thead>
             <tbody>
               {notices.length === 0 ? (
-                <tr><td colSpan="3">No notices</td></tr>
+                <tr><td colSpan="4">No notices</td></tr>
               ) : (
                 notices.map((notice) => (
                   <tr key={notice.id}>
                     <td>{notice.title}</td>
                     <td>{notice.message}</td>
                     <td>{new Date(notice.created_at).toLocaleDateString()}</td>
+                    <td>
+                      {notice.file_path ? (
+                        <a href={`/uploads/${notice.file_path}`} download style={{ color: "#3b82f6", textDecoration: "underline" }}>
+                          Download
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                   </tr>
                 ))
               )}

@@ -32,6 +32,10 @@ const Assignment = sequelize.define(
     created_by: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    file_path: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   },
   {

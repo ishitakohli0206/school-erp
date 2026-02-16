@@ -14,19 +14,22 @@ exports.createAssignment = async (req, res) => {
       return res.status(400).json({ message: "title, due_date and class_id are required" });
     }
 
+    const file_path = req.file ? req.file.filename : null;
+
     const assignment = await Assignment.create({
       title,
       description: description || null,
       due_date,
-      class_id,
-      subject_id: subject_id || null,
-      created_by: req.user.id
+      class_id: Number(class_id),
+      subject_id: subject_id ? Number(subject_id) : null,
+      created_by: req.user.id,
+      file_path
     });
 
     return res.status(201).json(assignment);
   } catch (error) {
-    console.error("createAssignment error:", error);
-    return res.status(500).json({ message: "Failed to create assignment" });
+    console.error("createAssignment error:", error.message, error);
+    return res.status(500).json({ message: "Failed to create assignment", error: error.message });
   }
 };
 

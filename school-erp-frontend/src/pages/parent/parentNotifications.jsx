@@ -61,6 +61,13 @@ const ParentNotifications = () => {
                 {notices.map((n) => (
                   <li key={n.id} className="activity-item">
                     <p className="activity-text"><strong>{n.title}</strong>: {n.message}</p>
+                    {n.file_path && (
+                      <p style={{ margin: "5px 0", fontSize: "0.9em" }}>
+                        <a href={`/uploads/${n.file_path}`} download style={{ color: "#3b82f6", textDecoration: "underline" }}>
+                          📎 Download Attachment
+                        </a>
+                      </p>
+                    )}
                     <span className="activity-time">{new Date(n.created_at).toLocaleDateString()}</span>
                   </li>
                 ))}

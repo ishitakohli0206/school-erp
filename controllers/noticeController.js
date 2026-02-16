@@ -15,23 +15,26 @@ exports.createNotice = async (req, res) => {
       return res.status(403).json({ message: "Only admin can create notices" });
     }
 
-    const { title, message, target_role = "all", class_id = null } = req.body;
+    const { title, message, target_role = "all", class_id } = req.body;
     if (!title || !message) {
       return res.status(400).json({ message: "title and message are required" });
     }
+
+    const file_path = req.file ? req.file.filename : null;
 
     const notice = await Notice.create({
       title,
       message,
       target_role,
-      class_id,
-      created_by: req.user.id
+      class_id: class_id ? Number(class_id) : null,
+      created_by: req.user.id,
+      file_path
     });
 
     return res.status(201).json(notice);
   } catch (error) {
-    console.error("createNotice error:", error);
-    return res.status(500).json({ message: "Failed to create notice" });
+    console.error("createNotice error:", error.message, error);
+    return res.status(500).json({ message: "Failed to create notice", error: error.message });
   }
 };
 

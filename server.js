@@ -1,7 +1,6 @@
 require("dotenv").config({ path: "./.env" });
 
-
-
+const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -25,8 +24,7 @@ const erpRoutes = require("./routes/erpRoutes");
 const publicRoutes = require("./routes/publicRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const adminModuleRoutes = require("./routes/adminModuleRoutes");
-
-
+const downloadRoutes = require("./routes/downloadRoutes");
 
 dotenv.config();
 
@@ -34,6 +32,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Serve downloads with proper headers
+app.use("/uploads", downloadRoutes);
 
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
@@ -61,7 +62,7 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({ alter: true }).then(() => {
   console.log("Database connected & synced");
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
