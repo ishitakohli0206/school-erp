@@ -48,6 +48,7 @@ export const getFeePayments = () => api.get("/fees/payments");
 export const sendParentUpdate = (data) => api.post("/teacher/parent-updates", data);
 
 export const getMyProfile = () => api.get("/profile/me");
+export const uploadProfilePicture = (formData) => api.post("/profile/photo", formData);
 
 export const getPublicOverview = () => api.get("/public/overview");
 export const submitAdmissionEnquiry = (data) => api.post("/public/admission-enquiry", data);

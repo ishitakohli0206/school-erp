@@ -17,6 +17,11 @@ const Student = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false
     }
+    ,
+    profile_picture: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
   },
   {
     tableName: "students",

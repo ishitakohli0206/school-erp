@@ -140,8 +140,13 @@ const AdminERP = () => {
               <option value="admin">Admin</option>
             </select>
             <input className="form-input" type="number" placeholder="Class ID (optional)" value={noticeForm.class_id} onChange={(e) => setNoticeForm({ ...noticeForm, class_id: e.target.value })} />
-            <input className="form-input" type="file" onChange={(e) => setNoticeForm({ ...noticeForm, file: e.target.files?.[0] || null })} />
+            <div> 
+              <input className="form-input" type="file" accept="application/pdf" onChange={(e) => setNoticeForm({ ...noticeForm, file: e.target.files?.[0] || null })} />
+
+            </div>
+             <label style={{ display: "block", marginBottom: 8, fontSize: 13, color: "#374151" }}>(Upload PDF)</label>
             <button className="btn-primary" type="submit">Publish Notice</button>
+            
           </form>
         </div>
 

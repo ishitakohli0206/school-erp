@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import MainLayout from "../components/MainLayout";
-import { getAssignments, getExamConfigs, getFees, getNotices, getResults, payFee } from "../services/erpService";
+import { getAssignments, getExamConfigs, getFees, getNotices, getResults, payFee, getFeePayments } from "../services/erpService";
 
 const StudentAcademics = () => {
   const [assignments, setAssignments] = useState([]);
   const [results, setResults] = useState([]);
   const [fees, setFees] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [notices, setNotices] = useState([]);
   const [examConfigs, setExamConfigs] = useState([]);
   const [paymentStatus, setPaymentStatus] = useState("");
@@ -13,18 +14,20 @@ const StudentAcademics = () => {
 
   const load = async () => {
     try {
-      const [assignmentRes, resultRes, feeRes, noticeRes, examRes] = await Promise.all([
+      const [assignmentRes, resultRes, feeRes, noticeRes, examRes, paymentsRes] = await Promise.all([
         getAssignments(),
         getResults(),
         getFees(),
         getNotices(),
-        getExamConfigs()
+        getExamConfigs(),
+        getFeePayments()
       ]);
       setAssignments(assignmentRes.data || []);
       setResults(resultRes.data || []);
       setFees(feeRes.data || []);
       setNotices(noticeRes.data || []);
       setExamConfigs(examRes.data || []);
+      setPayments(paymentsRes.data || []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load student modules");
     }
@@ -52,7 +55,7 @@ const StudentAcademics = () => {
       setPaymentStatus("");
       await payFee({ fee_id: fee.id, amount: due, payment_method: "online" });
       setPaymentStatus(`Payment successful for ${fee.term}`);
-      load();
+      await load();
     } catch (err) {
       setPaymentStatus(err.response?.data?.message || "Payment failed");
     }
@@ -153,6 +156,26 @@ const StudentAcademics = () => {
               )}
             </tbody>
           </table>
+          <div style={{ marginTop: 16 }}>
+            <h3>Payment History</h3>
+            <table className="data-table">
+              <thead><tr><th>Receipt</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead>
+              <tbody>
+                {payments.length === 0 ? (
+                  <tr><td colSpan="4">No payments found</td></tr>
+                ) : (
+                  payments.map((row) => (
+                    <tr key={row.id}>
+                      <td>{row.reference_no}</td>
+                      <td>{row.amount}</td>
+                      <td>{row.payment_method}</td>
+                      <td>{row.paid_on}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="card">

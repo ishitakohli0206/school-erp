@@ -24,7 +24,7 @@ exports.createOrUpdateFee = async (req, res) => {
 
     const status = computeStatus(amount_due, amount_paid, due_date);
 
-    const [fee] = await Fee.findOrCreate({
+    const [fee, created] = await Fee.findOrCreate({
       where: { student_id, term },
       defaults: {
         student_id,
@@ -37,12 +37,33 @@ exports.createOrUpdateFee = async (req, res) => {
       }
     });
 
+    // Track previous paid amount so we can create a FeePayment record for any increase
+    const previousPaid = created ? 0 : Number(fee.amount_paid || 0);
+
     fee.amount_due = amount_due;
     fee.amount_paid = amount_paid;
     fee.due_date = due_date;
     fee.last_payment_date = last_payment_date;
     fee.status = status;
     await fee.save();
+
+    // If admin (or caller) updated amount_paid to a higher value, create a FeePayment entry
+    const delta = Number(amount_paid) - previousPaid;
+    if (delta > 0) {
+      try {
+        await FeePayment.create({
+          fee_id: fee.id,
+          student_id: fee.student_id,
+          amount: delta,
+          payment_method: req.body.payment_method || "manual",
+          reference_no: `RCPT-${Date.now()}`,
+          paid_on: last_payment_date || new Date().toISOString().split("T")[0],
+          received_by: req.user.id
+        });
+      } catch (err) {
+        console.error("Failed to create FeePayment for manual update:", err);
+      }
+    }
 
     return res.status(201).json(fee);
   } catch (error) {
@@ -216,7 +237,40 @@ exports.getPaymentHistory = async (req, res) => {
       order: [["created_at", "DESC"]]
     });
 
-    return res.json(rows);
+    // If there are no FeePayment rows for the requested students, but Fee rows show amount_paid,
+    // surface those as legacy/manual payments so payment history is visible.
+    let resultRows = rows.slice();
+
+    // Only attempt to synthesize legacy payments when none (or few) real payments exist
+    if (resultRows.length === 0) {
+      // fetch fees for the same students
+      const fees = await Fee.findAll({
+        where,
+        include: [
+          {
+            model: Student,
+            include: [{ model: User, attributes: ["name"] }, { model: Class, attributes: ["class_name", "section"] }]
+          }
+        ]
+      });
+
+      for (const f of fees) {
+        const paid = Number(f.amount_paid || 0);
+        if (paid > 0) {
+          resultRows.push({
+            id: `legacy-fee-${f.id}`,
+            reference_no: `LEGACY-${f.id}`,
+            amount: paid,
+            payment_method: "manual",
+            paid_on: f.last_payment_date || f.due_date || null,
+            Student: f.Student,
+            Fee: f
+          });
+        }
+      }
+    }
+
+    return res.json(resultRows);
   } catch (error) {
     console.error("getPaymentHistory error:", error);
     return res.status(500).json({ message: "Failed to load payment history" });

@@ -21,12 +21,27 @@ router.get("/:filename", (req, res) => {
       return res.status(404).json({ message: "File not found" });
     }
 
-    // Set proper headers to force download with original filename
+    // Serve images inline so they open in the browser; other files force download
+    const ext = path.extname(filename).toLowerCase();
+    const imageExts = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+
+    if (imageExts.includes(ext)) {
+      let contentType = "application/octet-stream";
+      if (ext === ".jpg" || ext === ".jpeg") contentType = "image/jpeg";
+      if (ext === ".png") contentType = "image/png";
+      if (ext === ".gif") contentType = "image/gif";
+      if (ext === ".webp") contentType = "image/webp";
+      if (ext === ".svg") contentType = "image/svg+xml";
+
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+      return res.sendFile(filepath);
+    }
+
+    // Default: force download
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.setHeader("Content-Type", "application/octet-stream");
-
-    // Send file
-    res.download(filepath);
+    return res.download(filepath);
   } catch (error) {
     console.error("Download error:", error);
     res.status(500).json({ message: "Failed to download file" });
