@@ -16,18 +16,18 @@ const ParentDashboard = () => {
   useEffect(() => {
     api.get("/parent/my-children").then((res) => setChildren(res.data || [])).catch(() => setChildren([]));
 
-    // fetch both parent-specific notifications and school notices (e.g. class suspended)
+   
     Promise.all([api.get("/parent/notifications"), api.get("/notices")])
       .then(([n1, n2]) => {
         const pNotes = n1.data || [];
         const notices = n2.data || [];
-        // merge and sort by created_at desc
+      
         const merged = [...pNotes, ...notices].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         setNotifications(merged);
       })
       .catch(() => setNotifications([]));
 
-    // fetch fees for all linked children
+    
     api.get("/fees")
       .then((res) => setFees(res.data || []))
       .catch(() => setFees([]));

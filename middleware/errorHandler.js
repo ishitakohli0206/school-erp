@@ -1,4 +1,4 @@
-// Middleware to handle multer errors
+
 const handleMulterError = (err, req, res, next) => {
   if (err && err.message && err.message.includes("Invalid file type")) {
     return res.status(400).json({ message: err.message });

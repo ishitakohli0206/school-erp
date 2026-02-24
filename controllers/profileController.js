@@ -55,7 +55,6 @@ exports.uploadProfilePicture = async (req, res) => {
     const student = await Student.findOne({ where: { user_id: user.id } });
     if (!student) return res.status(404).json({ message: "Student profile not found" });
 
-    // Save the filename in the student record
     student.profile_picture = req.file.filename;
     await student.save();
 

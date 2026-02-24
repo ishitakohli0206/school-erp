@@ -1,9 +1,7 @@
 const { Teacher, Class, Student, Attendance, User, ParentStudent, Notification } = require("../models");
 const { Op } = require("sequelize");
 
-/**
- * DASHBOARD SUMMARY
- */
+
 exports.getDashboardSummary = async (req, res) => {
   try {
     if (req.user.role_id !== 4) {

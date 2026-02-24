@@ -4,6 +4,6 @@ const { getPublicOverview, createAdmissionEnquiry, getGallery } = require("../co
 
 router.get("/overview", getPublicOverview);
 router.post("/admission-enquiry", createAdmissionEnquiry);
-//router.get("/gallery", getGallery);
+
 
 module.exports = router;

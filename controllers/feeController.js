@@ -37,7 +37,7 @@ exports.createOrUpdateFee = async (req, res) => {
       }
     });
 
-    // Track previous paid amount so we can create a FeePayment record for any increase
+    
     const previousPaid = created ? 0 : Number(fee.amount_paid || 0);
 
     fee.amount_due = amount_due;
@@ -47,7 +47,7 @@ exports.createOrUpdateFee = async (req, res) => {
     fee.status = status;
     await fee.save();
 
-    // If admin (or caller) updated amount_paid to a higher value, create a FeePayment entry
+
     const delta = Number(amount_paid) - previousPaid;
     if (delta > 0) {
       try {
@@ -237,13 +237,11 @@ exports.getPaymentHistory = async (req, res) => {
       order: [["created_at", "DESC"]]
     });
 
-    // If there are no FeePayment rows for the requested students, but Fee rows show amount_paid,
-    // surface those as legacy/manual payments so payment history is visible.
+   
     let resultRows = rows.slice();
 
-    // Only attempt to synthesize legacy payments when none (or few) real payments exist
+   
     if (resultRows.length === 0) {
-      // fetch fees for the same students
       const fees = await Fee.findAll({
         where,
         include: [

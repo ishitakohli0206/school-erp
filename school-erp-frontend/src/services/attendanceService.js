@@ -10,7 +10,7 @@ export const getStudentAttendance = (studentId) => {
   return api.get(`/attendance/student/${studentId}`);
 };
 
-// TEACHER attendance records (for their assigned class)
+// TEACHER attendance records
 export const getTeacherAttendance = () => {
   return api.get("/attendance/teacher");
 };

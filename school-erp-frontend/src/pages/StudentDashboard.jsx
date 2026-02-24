@@ -28,9 +28,9 @@ const StudentDashboard = () => {
 
   const stats = [
     { title: "Enrolled Classes", value: "1", icon: "CL", color: "#3b82f6" },
-    { title: "Attendance", value: loading ? "..." : attendancePercent, icon: "AT", color: "#10b981" },
+    { title: "Attendance", value: loading ? "..." : attendancePercent, icon: "AT", color: "#10b981", action: () => navigate("/attendance") },
     { title: "Assignments", value: "View", icon: "AS", color: "#f59e0b", action: () => navigate("/student/academics") },
-    { title: "Results and Fees", value: "Open", icon: "RF", color: "#6366f1" }
+    { title: "Results and Fees", value: "Open", icon: "RF", color: "#6366f1", action: () => navigate("/student/academics") }
   ];
 
   return (

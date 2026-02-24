@@ -4,7 +4,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 const noticeController = require("../controllers/noticeController");
 
-// Wrapper to handle multer errors
+
 const handleUploadError = (req, res, next) => {
   upload.single("file")(req, res, (err) => {
     if (err) {

@@ -4,10 +4,6 @@ const db = require("../models");
 
 const { Student, User, Class } = db;
 
-/**
- * CREATE STUDENT
- * POST /admin/students
- */
 router.post("/", async (req, res) => {
   try {
     const { user_id, class_id } = req.body;
@@ -30,10 +26,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-/**
- * GET ALL STUDENTS
- * GET /admin/students
- */
+
 router.get("/", async (req, res) => {
   try {
     const students = await Student.findAll({
@@ -56,10 +49,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-/**
- * GET SINGLE STUDENT
- * GET /admin/students/:id
- */
+
 router.get("/:id", async (req, res) => {
   try {
     const student = await Student.findByPk(req.params.id);
@@ -74,10 +64,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-/**
- * DELETE STUDENT
- * DELETE /admin/students/:id
- */
+
 router.delete("/:id", async (req, res) => {
   try {
     const deleted = await Student.destroy({

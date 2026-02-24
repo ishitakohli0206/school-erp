@@ -4,22 +4,12 @@ const verifyToken = require("../middleware/authMiddleware");
 const { login } = require("../controllers/authController");
 const { register } = require("../controllers/authController");
 
-/**
- * POST /auth/login
- * Uses authController.login
- */
+
 router.post("/login", login);
 
-/**
- * POST /auth/register
- * Uses authController.register
- */
+
 router.post("/register", register);
 
-/**
- * GET /auth/me
- * Get current user info
- */
 router.get("/me", verifyToken, async (req, res) => {
   try {
     const User = require("../models").User;
@@ -38,7 +28,7 @@ router.get("/me", verifyToken, async (req, res) => {
       user.role_id === 4 ? "teacher" :
       null;
 
-    // If student, also return student_id
+   
     let response = {
       id: user.id,
       name: user.name,

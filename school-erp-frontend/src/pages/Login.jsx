@@ -59,12 +59,11 @@ const Login = () => {
         })
       );
 
-      //  Only student gets student_id
       if (student_id) {
         localStorage.setItem("student_id", student_id);
       }
 
-      //  REFRESH AUTH CONTEXT
+   
       await refreshUser();
 
       //  ROLE_ID BASED NAVIGATION

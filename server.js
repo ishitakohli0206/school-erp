@@ -33,7 +33,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve downloads with proper headers
+
 app.use("/uploads", downloadRoutes);
 
 app.use("/auth", authRoutes);

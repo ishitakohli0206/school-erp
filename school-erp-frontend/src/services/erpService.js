@@ -3,14 +3,14 @@ import api from "./api";
 export const getAdminOverview = () => api.get("/erp/admin-overview");
 
 export const createNotice = (data) => {
-  // If data is FormData, don't set Content-Type header - axios handles it automatically
+ 
   return api.post("/notices", data);
 };
 export const getNotices = () => api.get("/notices");
 export const getAllNotices = () => api.get("/notices/admin/all");
 
 export const createAssignment = (data) => {
-  // If data is FormData, don't set Content-Type header - axios handles it automatically
+ 
   return api.post("/assignments", data);
 };
 export const getAssignments = () => api.get("/assignments");

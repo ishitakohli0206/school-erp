@@ -20,7 +20,7 @@ router.get("/my-children", authMiddleware, getMyChildren);
 router.get("/notifications", authMiddleware, getParentNotifications);
 router.get("/academics", authMiddleware, getParentAcademics);
 
-// Admin debug utility: link a parent with student using available schema
+
 router.post("/link-student", async (req, res) => {
   try {
     const { parent_id, student_id } = req.body;

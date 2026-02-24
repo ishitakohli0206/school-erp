@@ -68,7 +68,7 @@ router.post("/create-test-data", async (req, res) => {
       console.log("Created parent:", parent.id);
     }
 
-    // ensure a parent_student link exists for the created test student
+   
     const existingLink = await ParentStudent.findOne({ where: { parent_id: parent.id, student_id: student.id } });
     if (!existingLink) {
       await ParentStudent.create({ parent_id: parent.id, student_id: student.id });

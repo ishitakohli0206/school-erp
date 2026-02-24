@@ -37,9 +37,7 @@ const Attendance = () => {
     console.log("Attendance mounted | role_id:", role_id);
   }, [role_id]);
 
-  // ============================
-  // FETCH STUDENTS (ADMIN + TEACHER)
-  // ============================
+  
   useEffect(() => {
     if (![1, 4].includes(role_id)) return;
 
@@ -64,9 +62,6 @@ const Attendance = () => {
     return () => (mounted = false);
   }, [role_id]);
 
-  // ============================
-  // FETCH ATTENDANCE (STUDENT ONLY)
-  // ============================
   useEffect(() => {
     if (role_id !== 2 ) return;
 
@@ -89,9 +84,9 @@ const Attendance = () => {
       .finally(() => setRecordsLoading(false));
   }, [role_id]);
 
-  // ============================
-  // FETCH TEACHER ATTENDANCE VIEW (REAL DB DATA)
-  // ============================
+
+
+
   useEffect(() => {
     if (!isTeacherAttendanceView) return;
 
@@ -117,9 +112,10 @@ const Attendance = () => {
       .finally(() => setTeacherRecordsLoading(false));
   }, [isTeacherAttendanceView, queryType]);
 
-  // ============================
-  // MARK ATTENDANCE (ADMIN + TEACHER)
-  // ============================
+ 
+  
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");

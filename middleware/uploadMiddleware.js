@@ -1,10 +1,9 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const os = require("os");
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(os.homedir(), "Desktop", "downloadsss");
+// Create uploads directory in project root if it doesn't exist
+const uploadsDir = path.join(__dirname, "..", "uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -47,7 +46,7 @@ const fileFilter = (req, file, cb) => {
   const isMimeAllowed = allowedMimes.includes(file.mimetype);
   const isExtAllowed = allowedExtensions.includes(fileExt);
 
-  // Allow file if either MIME type matches or extension matches
+
   if (isMimeAllowed || isExtAllowed) {
     cb(null, true);
   } else {
