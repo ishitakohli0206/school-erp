@@ -3,11 +3,13 @@ import MainLayout from "../components/MainLayout";
 import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { getQuizLinks } from "../services/erpService";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [attendancePercent, setAttendancePercent] = useState("0%");
   const [loading, setLoading] = useState(false);
+  const [quizLinks, setQuizLinks] = useState([]);
 
   useEffect(() => {
     const studentId = localStorage.getItem("student_id");
@@ -24,6 +26,12 @@ const StudentDashboard = () => {
       })
       .catch(() => setAttendancePercent("0%"))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    getQuizLinks()
+      .then((res) => setQuizLinks(res.data || []))
+      .catch(() => setQuizLinks([]));
   }, []);
 
   const stats = [
@@ -76,6 +84,28 @@ const StudentDashboard = () => {
                   <span>Profile</span>
                 </button>
               </div>
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="card-header"><h2 className="card-title">Quiz Links</h2></div>
+            <div className="card-body">
+              {quizLinks.length === 0 ? (
+                <p className="empty-state">No quizzes available right now.</p>
+              ) : (
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                  {quizLinks.map((quiz) => (
+                    <li key={quiz.id} style={{ padding: "10px 0", borderBottom: "1px solid #eef2f7" }}>
+                      <a href={quiz.url} target="_blank" rel="noopener noreferrer" style={{ color: "#2563eb", textDecoration: "underline" }}>
+                        {quiz.title}
+                      </a>
+                      <div style={{ fontSize: 13, color: "#6b7280" }}>
+                        {new Date(quiz.created_at).toLocaleDateString()}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>

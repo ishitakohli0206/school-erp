@@ -84,7 +84,7 @@ exports.getResultsForCurrentUser = async (req, res) => {
           {
             model: Student,
             attributes: ["id", "class_id"],
-            include: [{ model: User, attributes: ["name"] }]
+            include: [{ model: User, attributes: ["name"] }, { model: Class, attributes: ["class_name", "section"] }]
           },
           { model: Subject, attributes: ["id", "name"] }
         ],
@@ -99,7 +99,17 @@ exports.getResultsForCurrentUser = async (req, res) => {
 
       const results = await Result.findAll({
         where: { student_id: student.id },
-        include: [{ model: Subject, attributes: ["id", "name"] }],
+        include: [
+          { model: Subject, attributes: ["id", "name"] },
+          {
+            model: Student,
+            attributes: ["id", "class_id"],
+            include: [
+              { model: User, attributes: ["name"] },
+              { model: Class, attributes: ["class_name", "section"] }
+            ]
+          }
+        ],
         order: [["exam_date", "DESC"]]
       });
       return res.json(results);

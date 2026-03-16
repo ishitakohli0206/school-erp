@@ -37,4 +37,16 @@ router.post(
   teacherController.sendParentUpdate
 );
 
+router.get(
+  "/quiz-links",
+  authMiddleware,
+  teacherController.getQuizLinks
+);
+
+router.post(
+  "/quiz-links",
+  authMiddleware,
+  teacherController.createQuizLink
+);
+
 module.exports = router;

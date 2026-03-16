@@ -45,6 +45,7 @@ app.use("/api/students", studentRoutes);
 app.use("/parent", parentRoutes);
 app.use("/api/parent", parentRoutes);
 app.use("/teacher", teacherRoutes);
+app.use("/teachers", teacherRoutes);
 app.use("/notices", noticeRoutes);
 app.use("/assignments", assignmentRoutes);
 app.use("/results", resultRoutes);

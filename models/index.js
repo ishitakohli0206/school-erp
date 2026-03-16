@@ -23,6 +23,7 @@ db.AdmissionEnquiry = require("./admissionEnquiry");
 db.ExamConfig = require("./examConfig");
 db.Payroll = require("./payroll");
 db.FeePayment = require("./feePayment");
+db.QuizLink = require("./quizLink");
 
 // Parent - Student (many-to-many)
 db.Parent.belongsToMany(db.Student, {
@@ -106,5 +107,9 @@ db.FeePayment.belongsTo(db.Student, { foreignKey: "student_id" });
 // Class - Notice
 db.Class.hasMany(db.Notice, { foreignKey: "class_id" });
 db.Notice.belongsTo(db.Class, { foreignKey: "class_id" });
+
+// Class - QuizLink
+db.Class.hasMany(db.QuizLink, { foreignKey: "class_id" });
+db.QuizLink.belongsTo(db.Class, { foreignKey: "class_id" });
 
 module.exports = db;

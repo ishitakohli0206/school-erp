@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import MainLayout from "../../components/MainLayout";
 import { useAuth } from "../../context/authContext";
 import api from "../../services/api";
-import { getNotices } from "../../services/erpService";
+import { createQuizLink, getNotices, getQuizLinks } from "../../services/erpService";
 import "../Dashboard.css";
 
 const TeacherDashboard = () => {
@@ -15,6 +15,10 @@ const TeacherDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [notices, setNotices] = useState([]);
+  const [quizLinks, setQuizLinks] = useState([]);
+  const [quizForm, setQuizForm] = useState({ title: "", url: "" });
+  const [quizStatus, setQuizStatus] = useState("");
+  const [submittingQuiz, setSubmittingQuiz] = useState(false);
 
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -31,6 +35,13 @@ const TeacherDashboard = () => {
         } catch (err) {
           console.warn("Failed to load notices for teacher dashboard", err);
         }
+
+        try {
+          const quizRes = await getQuizLinks();
+          setQuizLinks(quizRes.data || []);
+        } catch (err) {
+          console.warn("Failed to load quiz links for teacher dashboard", err);
+        }
       } catch (err) {
         console.error(err);
         if (err.response?.status === 401 || err.response?.status === 403) {
@@ -45,6 +56,39 @@ const TeacherDashboard = () => {
   }, [logout, navigate]);
 
   if (loading) return <div>Loading...</div>;
+
+  const handleQuizSubmit = async (e) => {
+    e.preventDefault();
+    setQuizStatus("");
+
+    if (!quizForm.title.trim() || !quizForm.url.trim()) {
+      setQuizStatus("Title and Form URL are required.");
+      return;
+    }
+
+    setSubmittingQuiz(true);
+    try {
+      const res = await createQuizLink({
+        title: quizForm.title.trim(),
+        url: quizForm.url.trim()
+      });
+
+      setQuizLinks((prev) => [res.data, ...prev]);
+      setQuizForm({ title: "", url: "" });
+      setQuizStatus("Quiz link added successfully.");
+    } catch (err) {
+      const status = err.response?.status;
+      const data = err.response?.data;
+      const message =
+        (data && typeof data === "object" && data.message) ||
+        (typeof data === "string" ? data : null) ||
+        err.message ||
+        "Failed to add quiz link.";
+      setQuizStatus(status ? `(${status}) ${message}` : message);
+    } finally {
+      setSubmittingQuiz(false);
+    }
+  };
 
   return (
     <MainLayout>
@@ -116,6 +160,53 @@ const TeacherDashboard = () => {
                 >
                   Parent Communication
                 </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="card-header"><h2 className="card-title">Quiz Links</h2></div>
+            <div className="card-body">
+              <form className="form-grid" onSubmit={handleQuizSubmit}>
+                <input
+                  className="form-input"
+                  placeholder="Quiz title"
+                  value={quizForm.title}
+                  onChange={(e) => setQuizForm((prev) => ({ ...prev, title: e.target.value }))}
+                />
+                <input
+                  className="form-input"
+                  placeholder="Google or Microsoft Form URL"
+                  value={quizForm.url}
+                  onChange={(e) => setQuizForm((prev) => ({ ...prev, url: e.target.value }))}
+                />
+                <button className="action-btn" type="submit" disabled={submittingQuiz}>
+                  {submittingQuiz ? "Adding..." : "Add Quiz Link"}
+                </button>
+              </form>
+                   
+              {quizStatus ? (
+                <p style={{ marginTop: "10px", color: quizStatus.includes("successfully") ? "#16a34a" : "#dc2626" }}>
+                  {quizStatus}
+                </p>
+              ) : null}
+              <div style={{ marginTop: "14px" }}>
+                {quizLinks.length === 0 ? (
+                  <p className="empty-state" style={{ padding: "0.5rem 0" }}>No quiz links added yet.</p>
+                ) : (
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                    {quizLinks.map((quiz) => (
+                      <li key={quiz.id} style={{ padding: "8px 0", borderBottom: "1px solid #eef2f7" }}>
+                        <a href={quiz.url} target="_blank" rel="noopener noreferrer" style={{ color: "#2563eb", textDecoration: "underline" }}>
+                          {quiz.title}
+                        </a>
+                        <div style={{ fontSize: 13, color: "#6b7280" }}>
+                          {new Date(quiz.created_at).toLocaleDateString()}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           </div>

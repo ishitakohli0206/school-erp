@@ -1,5 +1,18 @@
 import api from "./api";
 
+const requestWithTeacherPathFallback = async (method, path, data) => {
+  try {
+    if (method === "get") return await api.get(`/teacher${path}`);
+    if (method === "post") return await api.post(`/teacher${path}`, data);
+    throw new Error("Unsupported method");
+  } catch (err) {
+    if (err.response?.status !== 404) throw err;
+    if (method === "get") return api.get(`/teachers${path}`);
+    if (method === "post") return api.post(`/teachers${path}`, data);
+    throw err;
+  }
+};
+
 export const getAdminOverview = () => api.get("/erp/admin-overview");
 
 export const createNotice = (data) => {
@@ -46,6 +59,8 @@ export const payFee = (data) => api.post("/fees/pay", data);
 export const getFeePayments = () => api.get("/fees/payments");
 
 export const sendParentUpdate = (data) => api.post("/teacher/parent-updates", data);
+export const getQuizLinks = () => requestWithTeacherPathFallback("get", "/quiz-links");
+export const createQuizLink = (data) => requestWithTeacherPathFallback("post", "/quiz-links", data);
 
 export const getMyProfile = () => api.get("/profile/me");
 export const uploadProfilePicture = (formData) => api.post("/profile/photo", formData);
