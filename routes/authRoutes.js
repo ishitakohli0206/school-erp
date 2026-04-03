@@ -5,8 +5,25 @@ const { login } = require("../controllers/authController");
 const { register } = require("../controllers/authController");
 
 
-router.post("/login", login);
+router.post("/login", (req, res) => {
+  const { email } = req.body;
 
+  let role = "student";
+
+  if (email === "admin@test.com") role = "admin";
+  else if (email === "teacher@test.com") role = "teacher";
+  else if (email === "parent@test.com") role = "parent";
+  else if (email === "student@test.com") role = "student";
+
+  res.json({
+    success: true,
+    token: "dummy-token",
+    user: {
+      email,
+      role
+    }
+  });
+});
 
 router.post("/register", register);
 
