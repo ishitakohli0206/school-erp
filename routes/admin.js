@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Student, Parent, Class } = require('../models');
 const verifyToken = require('../middleware/authMiddleware');
-const isAdmin = require('../middleware/adminMiddleware');
+const isAdmin = require('../middleware/adminmiddleware');
 
 
 router.get('/parent/:id/students', verifyToken, isAdmin, async (req, res) => {
