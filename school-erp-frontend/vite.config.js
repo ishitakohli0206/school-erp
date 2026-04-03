@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/uploads': {
-        target: 'http://localhost:5000',
+        target: 'https://school-erp-bjl8.onrender.com/',
         changeOrigin: true,
         secure: false
       }

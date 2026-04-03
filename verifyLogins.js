@@ -1,5 +1,5 @@
 (async () => {
-  const base = 'http://localhost:5000';
+  const base = 'https://school-erp-bjl8.onrender.com/';
   const tests = [
     { email: 'student@test.com', password: 'password123', label: 'STUDENT' },
     { email: 'admin@test.com', password: 'password123', label: 'ADMIN' },

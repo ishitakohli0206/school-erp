@@ -1,6 +1,6 @@
 (async () => {
   try {
-    const base = 'http://localhost:5000';
+    const base = 'https://school-erp-bjl8.onrender.com/';
 
     console.log('Logging in as parent@test.com');
     const loginRes = await fetch(`${base}/auth/login`, {
